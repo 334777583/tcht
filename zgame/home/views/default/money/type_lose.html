@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>渠道流失</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link href="<{$res}>/css/skin.css" rel="stylesheet" type="text/css">
+	<link href="<{$res}>/css/jquery-ui.css" rel="stylesheet" type="text/css">
+	<script src="<{$res}>/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+	<style type="text/css">
+	<!--
+	body {
+		margin-left: 0px;
+		margin-top: 0px;
+		margin-right: 0px;
+		margin-bottom: 0px;
+		background-color: #EEF2FB;
+		font-size: 12px;
+	}
+	-->
+	</style>
+</head>
+<body>
+	<div>
+		<div>
+			<div>
+				<table class="explain">
+					<thead>
+					</thead>
+					<tbody style="font-family:Mingliu">
+						<tr>
+							<td width="5%"  class="tableleft"><b>说明：</b></td>
+						</tr>
+						<tr>
+							<td width="95%" class="tableleft">1、观察渠道玩家每个阶段的转化情况</td>
+						</tr>
+						<tr>
+							<td width="95%" class="tableleft">2、分为实时数据和隔日数据，此外实时数据是指可以看到当天4个小时内的数据，隔日数据则至少第二天才能看到数据</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<div class="topinfo">
+				<div>
+					<span>服务器:</span>
+					<select id="sip">
+					<{foreach from=$ipList item=ip}>
+						<option value="<{$ip.s_id}>" attr="<{$ip.g_domain}>"><{$ip.s_name}></option>
+					<{/foreach}>
+					<option value="0" >全部</option>
+					</select>
+					<span style="margin-left: 20px">日期:</span>
+					<!--<input type="text" id="startdate" class="input1" />至<input type="text" id="enddate" class="input1" value="<{$enddate}>"/>-->
+					<input type="text"  id="startdate" value="<{$startdate}>" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1" onblur="this.className='input-text'" onfocus="this.className='input-text-bor'">
+					至
+					<input type="text"  id="enddate" value ="<{$enddate}>" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1" onblur="this.className='input-text'" onfocus="this.className='input-text-bor'">
+					
+					<input type="button" value="前天" id="qt"/>&nbsp;&nbsp;<input type="button" value="昨天" id="zt"/>&nbsp;&nbsp;<input type="button" value="今天" id="jt"/>&nbsp;&nbsp;<input type="button" value="查询" id="querybtn"/>&nbsp;&nbsp;
+					<input type="button" value="更新数据" id="refresh"/>
+					
+				</div>
+				<div>
+					<input type="button" value="实时数据" />&nbsp;&nbsp;<input type="button" value="当前" id="dq"/>&nbsp;&nbsp;<input type="button" value="前1小时" id="1hour"/>&nbsp;&nbsp;<input type="button" value="前2小时" id="2hours"/>&nbsp;&nbsp;<input type="button" value="前3小时" id="3hours"/>&nbsp;&nbsp;
+					<input type="button" value="导出Excel" id="exportbtn"/>
+				</div>
+			</div>
+			
+			<div style="clear:both"></div>
+			
+			<div>
+				<table  class="mytable" cellspacing="0" align="center" id="dtable">
+					<thead>
+						<tr>
+							<th>渠道ID</th>
+							<th>PHP接口&nbsp;<img src="<{$res}>/images/ask.jpg" title="从平台跳转到php接口的玩家"></th>
+							<th>创角界面&nbsp;<img src="<{$res}>/images/ask.jpg" title="从php接口跳转到创角界面的玩家"></th>
+							<th>创角成功&nbsp;<img src="<{$res}>/images/ask.jpg" title="成功创建角色的玩家"></th>
+							<th>加载成功&nbsp;<img src="<{$res}>/images/ask.jpg" title="加载完成并成功进入游戏内的玩家"></th>
+						</tr>
+					</thead>
+					<tbody id="dtatr_body">
+					</tbody>
+				</table>
+			</div>
+			<div style="float:right;margin-right:20px;" id="pagehtml">
+				<div class="pages">
+					<a id="home_page" href="javascript:void(0)">首页</a>&nbsp;&nbsp;
+					<a id="pre_page" href="javascript:void(0)">上一页</a>&nbsp;&nbsp;
+					<a id="next_page" href="javascript:void(0)">下一页</a>&nbsp;&nbsp;
+					<a id="last_page" href="javascript:void(0)">尾页</a>&nbsp;&nbsp;
+					<span>第<span id="cur_page">1</span>/<span id="total_page">1</span>页&nbsp;&nbsp;</span>
+					转到<input type="text" class="text" size="3"  id="page" value="1"/>
+					<a id="go" class="go" href="javascript:void(0);"></a>页
+					
+				</div>
+			</div>
+			
+			<div class="topinfo">
+				<div>
+					<!--<span>服务器:</span>
+					<select id="sip">
+					<{foreach from=$ipList item=ip}>
+						<option value="<{$ip.s_id}>" attr="<{$ip.g_domain}>"><{$ip.s_name}></option>
+					<{/foreach}>
+					</select>-->
+					<span>隔日数据</span>
+					<span style="margin-left: 20px">日期:</span>
+					<!--<input type="text" id="startdate" class="input1" />至<input type="text" id="enddate" class="input1" value="<{$enddate}>"/>-->
+					<input type="text"  id="ystartdate" value="<{$ystartdate}>" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1" onblur="this.className='input-text'" onfocus="this.className='input-text-bor'">
+					至
+					<input type="text"  id="yenddate" value="<{$yenddate}>" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1" onblur="this.className='input-text'" onfocus="this.className='input-text-bor'">
+					<input type="button" value="查询" id="yquerybtn"/>&nbsp;&nbsp;
+					<input type="button" value="导出Excel" id="exportbtn"/>
+				</div>
+				
+			</div>
+			
+			<div style="clear:both"></div>
+			
+			<div>
+				<table  class="mytable" cellspacing="0" align="center" id="ytable">
+					<thead>
+						<tr>
+							<th>渠道ID</th>
+							<th>PHP接口&nbsp;<img src="<{$res}>/images/ask.jpg" title="从平台跳转到php接口的玩家"></th>
+							<th>创角界面&nbsp;<img src="<{$res}>/images/ask.jpg" title="从php接口跳转到创角界面的玩家"></th>
+							<th>创角成功&nbsp;<img src="<{$res}>/images/ask.jpg" title="成功创建角色的玩家"></th>
+							<th>加载成功&nbsp;<img src="<{$res}>/images/ask.jpg" title="加载完成并成功进入游戏内的玩家"></th>
+						</tr>
+					</thead>
+					<tbody id="ytatr_body">
+					</tbody>
+				</table>
+			</div>
+			<div style="float:right;margin-right:20px;" id="pagehtml">
+				<div class="pages">
+					<a id="home_page" href="javascript:void(0)">首页</a>&nbsp;&nbsp;
+					<a id="pre_page" href="javascript:void(0)">上一页</a>&nbsp;&nbsp;
+					<a id="next_page" href="javascript:void(0)">下一页</a>&nbsp;&nbsp;
+					<a id="last_page" href="javascript:void(0)">尾页</a>&nbsp;&nbsp;
+					<span>第<span id="cur_page">1</span>/<span id="total_page">1</span>页&nbsp;&nbsp;</span>
+					转到<input type="text" class="text" size="3"  id="page" value="1"/>
+					<a id="go" class="go" href="javascript:void(0);"></a>页
+					
+				</div>
+			</div>
+			
+			
+			<div style="clear:both"></div>
+		</div>
+		
+		<div style="height:50px">&nbsp;</div>
+		
+	</div>
+	<!-- 服务器 -->
+	<div id="dform"  style="display:none">
+		<div class="ajaxform">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+				
+				<{foreach key=key from=$ipList item=ip}>
+					<{if $key%5 eq '0'}>
+						<br/><br/>
+					<{/if}>
+						<input type="radio" name="db" value='<{$ip.s_id}>'  class="cbox"/><span><{$ip.s_name}></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<{/foreach}>
+			</table>
+		</div>
+	</div>
+	
+	<script src="<{$res}>/js/jquery.js" type="text/javascript"></script>
+	<script src="<{$res}>/js/jquery-ui.js" type="text/javascript"></script>
+	<script src="<{$res}>/js/amcharts.js" type="text/javascript"></script>
+	<script src="<{$res}>/js/function.js" type="text/javascript"></script> 	
+	<script type="text/javascript">	
+		var user_pay = {
+			INIT : function(){
+				var self = this;
+				var mydate= new Date($("#enddate").val()); 
+				var t = mydate.setDate(mydate.getHours()+1); 
+				page.listen();
+				
+				showTitle("游戏数据统计:渠道流失");
+				self.today(0);
+				self.yestoday(0);
+				
+				//导出excel
+			$("#exportbtn").click(function(){
+				var ip = $("#sip").val();
+				var startdate = $("#startdate").val();
+				var enddate = $("#enddate").val();
+				window.location.href = "<{$logicApp}>/propanalysis/writeExcel/ip/"+ip+"/startdate/"+startdate+"/enddate/"+enddate;
+			});
+				
+				$("#querybtn").click(function(){
+					self.today(0);
+				});
+				$("#yquerybtn").click(function(){
+					self.yestoday();
+				});
+				var t = '';
+				$("#dq").click(function(){
+					t = 1;
+					self.today(t);
+				});
+				$("#1hour").click(function(){
+					t = 2;
+					self.today(t);
+				});
+				$("#2hours").click(function(){
+					t = 3;
+					self.today(t);
+				});
+				$("#3hours").click(function(){
+					t = 4;
+					self.today(t);
+				});
+				$("#jt").click(function(){
+					t = 5;
+					self.today(t);
+				});
+				$("#zt").click(function(){
+					t = 1;
+					self.yestoday(t);
+				});
+				$("#qt").click(function(){
+					t = 2;
+					self.yestoday(t);
+				});
+				$("#refresh").click(function(){
+					self.indata();
+				});
+				
+				$("#sip").change(function() {
+					if($("#sip").val() == 0){
+						$("#dform").dialog({
+							height: 500,
+							width: 700,
+							buttons :{
+								"确认": function(){
+									var item = $(':radio[name="db"]:checked').val();
+									$("#sip").val(item);
+									$(this).dialog("close");
+								},
+								"关闭" : function(){
+									$(this).dialog("close");
+								}
+							}
+						})
+					}
+				})
+				
+				
+			},
+			
+			today : function(t) {
+				$.ajax({
+					'type' : 'GET',
+					url : '<{$logicApp}>/typelose/typeNow',
+					dataType : 'json',
+					data : {
+						startdate : $("#startdate").val(),
+						enddate : $("#enddate").val(),
+						hour : t,
+						ip : $("#sip").val()
+					},
+					beforeSend : function() {
+						$("#dtatr_body").html("<tr><td colspan='8'><img src='<{$res}>/images/loading.gif'/></td></tr>");
+					},
+					success : function (data) {
+						alert(data.startDate);
+						$("#startdate").val(data.startDate);
+						$("#enddate").val(data.endDate);
+						
+						//if(typeof(data.list) != 'undefined'){
+						var list = data.list;
+						//}
+						$("#pagehtml").show();
+						var fields = ['tid', 'cre', 'jum', 'suc','loa'];
+						page.INIT(8, list, fields, '#dtatr_body');
+						$("#home_page").trigger('click');
+					},
+					error : function () {
+						$("#pagehtml").hide();
+						$("#dtatr_body").html("<tr><td colspan='8'>没有数据！</td></tr>");
+					}
+				})
+			},
+			
+			yestoday : function(t) {
+				$.ajax({
+					'type' : 'GET',
+					url : '<{$logicApp}>/typelose/typeHistory',
+					dataType : 'json',
+					data : {
+						startdate : $("#ystartdate").val(),
+						enddate : $("#yenddate").val(),
+						d : t,
+						ip : $("#sip").val()
+					},
+					beforeSend : function() {
+						$("#ytatr_body").html("<tr><td colspan='8'><img src='<{$res}>/images/loading.gif'/></td></tr>");
+					},
+					success : function (data) {
+						if(typeof(data.list) != 'undefined'){
+						var list = data.list;
+						}
+						$("#pagehtml").show();
+						var fields = ['tyid', 'cphp', 'ctz', 'ccg','cjz'];
+						page.INIT(8, list, fields, '#ytatr_body');
+						$("#home_page").trigger('click');
+						//$("#startdate").val(data.startDate);
+					},
+					error : function () {
+						$("#pagehtml").hide();
+						$("#ytatr_body").html("<tr><td colspan='8'>没有数据！</td></tr>");
+					}
+				})
+			},
+			
+			indata : function(t) {
+				var self = this;
+				$.ajax({
+					'type' : 'GET',
+					url : '<{$logicApp}>/typelose/refresh',
+					dataType : 'json',
+					data : {
+						ip : $("#sip").val(),
+						startdate : $("#ystartdate").val(),
+						enddate : $("#yenddate").val()
+					},
+					/*beforeSend : function() {
+						$("#ytatr_body").html("<tr><td colspan='8'><img src='<{$res}>/images/loading.gif'/></td></tr>");
+					},*/
+					success : function (data) {
+						self.today(1);
+					},
+					error : function () {
+						self.today(1);
+					}
+				})
+			},
+			
+		}
+		$(document).ready(function(){
+			user_pay.INIT();
+		})
+		
+	</script>
+</body>
+</html>

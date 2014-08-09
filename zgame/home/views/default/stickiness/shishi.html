@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>实时查询</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link href="<{$res}>/css/skin.css" rel="stylesheet" type="text/css">
+	<link href="<{$res}>/css/jquery-ui.css" rel="stylesheet" type="text/css">
+	<script src="<{$res}>/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+	<style type="text/css">
+	<!--
+	body {
+		margin-left: 0px;
+		margin-top: 0px;
+		margin-right: 0px;
+		margin-bottom: 0px;
+		background-color: #EEF2FB;
+		font-size: 12px;
+	}
+	-->
+	</style>
+</head>
+<body>
+	<div>
+		<div>
+			<div>
+				<table class="explain">
+					<thead>
+					</thead>
+					<tbody style="font-family:Mingliu">
+						<tr>
+							<td width="5%"  class="tableleft"><b>说明：</b></td>
+						</tr>
+						<!-- <tr>
+							<td width="95%" class="tableleft">1、付费比=付费人数（账号去重）/登陆总数</td>
+						</tr> -->
+						<tr>
+							<td width="95%" class="tableleft">1、ARPU=付费总额/付费人数</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<div class="topinfo">
+				<div>
+					<span>服务器:</span>
+					<select id="sip">
+					<{foreach from=$ipList item=ip}>
+						<option value="<{$ip.s_id}>" attr="<{$ip.g_file}>" bz = "<{$ip.g_yxbz}>"><{$ip.s_name}></option>
+					<{/foreach}>
+					<option value="0" >全部</option>
+					</select>
+					<input type="text"  id="timer" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1" onblur="this.className='input-text'" onfocus="this.className='input-text-bor'">
+					&nbsp;<input type="button" value="阶段查询" id="querystage"/>
+					&nbsp;<input type="button" value="即时查询" id="queryjs"/>
+					&nbsp;<input type="button" value="任务集市创角统计" id="taskquery"/>
+				</div>
+			</div>
+			
+			<div style="clear:both"></div>
+			
+			<div>
+				<table  class="mytable" cellspacing="0" align="center" id="dtable">
+					<thead>
+						<tr>				
+							<th>注册</th>
+							<th>总创角</th>
+							<th>创角（去重）</th>
+							<th>登陆总数</th>
+							<th>付费金额</th>
+							<th>付费人数</th>
+							<th>当天付费人数</th>
+							<th>付费次数</th>
+							<th>ARPU</th>
+							<th>当前在线</th>
+						</tr>
+					</thead>
+					<tbody id="dtatr_body">
+					</tbody>
+				</table>
+				<table  class="mytable" cellspacing="0" align="center" id="dtable">
+					<thead>
+						<tr>
+							<th>领取任务玩家数目</th>
+							<th>成功创建角色的玩家数</th>
+							<th>付费金额</th>
+							<th>付费人数</th>
+							<th>付费次数</th>
+							<th>ARPU</th>
+							<th>当前在线</th>
+						</tr>
+					</thead>
+					<tbody id="dtatr_body1">
+					</tbody>
+				</table>
+			</div>
+			
+			<!--<div style="float:right;margin-right:20px;display:none" id="pagehtml">
+				<div class="pages">
+					<a id="home_page" href="javascript:void(0)">首页</a>&nbsp;&nbsp;
+					<a id="pre_page" href="javascript:void(0)">上一页</a>&nbsp;&nbsp;
+					<a id="next_page" href="javascript:void(0)">下一页</a>&nbsp;&nbsp;
+					<a id="last_page" href="javascript:void(0)">尾页</a>&nbsp;&nbsp;
+					<span>第<span id="cur_page">1</span>/<span id="total_page">1</span>页&nbsp;&nbsp;</span>
+					转到<input type="text" class="text" size="3"  id="page" value="1"/>
+					<a id="go" class="go" href="javascript:void(0);"></a>页
+				</div>
+			</div>-->
+		
+			<div style="clear:both"></div>
+		</div>
+		
+		<div style="height:50px">&nbsp;</div>
+		
+	</div>
+	
+	<!-- 服务器 -->
+	<div id="dform"  style="display:none">
+		<div class="ajaxform">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+				
+				<{foreach key=key from=$ipList item=ip}>
+					<{if $key%5 eq '0'}>
+						<br/><br/>
+					<{/if}>
+						<input type="radio" name="db" value='<{$ip.s_id}>'  class="cbox"/><span><{$ip.s_name}></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<{/foreach}>
+			</table>
+		</div>
+	</div>
+	<script src="<{$res}>/js/jquery.js" type="text/javascript"></script>
+	<script src="<{$res}>/js/jquery-ui.js" type="text/javascript"></script>
+	<script src="<{$res}>/js/amcharts.js" type="text/javascript"></script>
+	<script src="<{$res}>/js/function.js" type="text/javascript"></script> 	
+	<script type="text/javascript">	
+		//	$("#startdate").datepicker();
+		//	$("#enddate").datepicker();
+	
+	$("#taskquery").click(function(){
+		$.post("<{$logicApp}>/userrole/taskquery",{sip:$('#sip').val()},
+		function(data){
+			//data = JSON.parse(data);
+			$('#dtatr_body1').empty();
+			var str = '<tr><td>'+data['tasknum']+'</td>';
+			str += '<td>'+data['rolenum']+'</td>';
+			str += '<td>'+data['paymoney']+'</td>';
+			str += '<td>'+data['paypeoplenum']+'</td>';
+			str += '<td>'+data['paynum']+'</td>';
+			str += '<td>'+data['payarpu']+'</td>';
+			str += '<td>'+data['online']+'</td>';
+			str += '</tr>';
+			$('#dtatr_body1').append(str);
+		},'json');
+	});
+	
+	$("#querystage").click(function(){
+		$.post("<{$logicApp}>/userrole/querystage",{sip:$('#sip').val(),timer:$("#timer").val()},
+			function(data){
+				//data = JSON.parse(data);
+				$('#dtatr_body').empty();
+				var str = '<tr><td>'+data[0]['regcount']+'</td>';
+				str += '<td>'+data[0]['jiaoseall']+'</td>';
+				str += '<td>'+data[0]['jiaose']+'</td>';
+				str += '<td>'+data[0]['login']+'</td>';
+				str += '<td>'+data[0]['paymoney']+'</td>';
+				str += '<td>'+data[0]['paynum']+'</td>';
+				str += '<td>'+data[0]['currentpaynum']+'</td>';
+				str += '<td>'+data[0]['paycount']+'</td>';
+				if(parseInt(data[0].paynum)==0){
+					str += '<td>0</td>';
+				}else {
+					str += '<td>'+(parseInt(data[0].paymoney)/parseInt(data[0].paynum)).toFixed(2)+'</td>';
+				}
+				str += '<td>'+data[0]['online']+'</td>';
+				str += '</tr>';
+				$('#dtatr_body1').html('');
+				$('#dtatr_body').append(str);
+			}
+		,'json');
+	});
+	
+	$('#queryjs').click(function(){
+		$.post("<{$logicApp}>/userrole/getshishi",{sip:$('#sip').val()},
+		function(data){
+			//data = JSON.parse(data);
+			$('#dtatr_body').empty();
+			var str = '<tr><td>'+data[0]['regcount']+'</td>';
+			str += '<td>'+data[0]['jiaoseall']+'</td>';
+			str += '<td>'+data[0]['jiaose']+'</td>';
+			str += '<td>'+data[0]['login']+'</td>';
+			str += '<td>'+data[0]['paymoney']+'</td>';
+			str += '<td>'+data[0]['paynum']+'</td>';
+			str += '<td>'+data[0]['currentpaynum']+'</td>';
+			str += '<td>'+data[0]['paycount']+'</td>';
+			if(parseInt(data[0].paynum)==0){
+				str += '<td>0</td>';
+			}else {
+				str += '<td>'+(parseInt(data[0].paymoney)/parseInt(data[0].paynum)).toFixed(2)+'</td>';
+			}
+			str += '<td>'+data[0]['online']+'</td>';
+			str += '</tr>';
+			$('#dtatr_body1').html('');
+			$('#dtatr_body').append(str);
+		},'json');
+	});
+
+	showTitle("游戏数据统计:实时查询");
+
+	$("#sip").change(function() {
+		if($("#sip").val() == 0){
+			$("#dform").dialog({
+				height: 500,
+				width: 700,
+				buttons :{
+					"确认": function(){
+						var item = $(':radio[name="db"]:checked').val();
+						$("#sip").val(item);
+						$(this).dialog("close");
+					},
+					"关闭" : function(){
+						$(this).dialog("close");
+					}
+				}
+			})
+		}
+	})
+
+		/*var user_pay = {
+			object : <{$ipDetail}>
+			INIT : function(){
+				var self = this;
+				
+				//时间插件
+				
+				page.listen();
+				
+				
+				
+				$("#querybtn").click(function(){
+					if(validator("startdate", "enddate")){
+						self.showRole();
+					}
+				});
+				$("#queryjs").click(function(){
+					self.jishi();
+				});
+			},
+			
+			jishi : function(){
+			
+				var si = $("#sip").val();
+				var self = this;
+				var biaoshi = '';
+				var ip = '';
+				var domain = $("#sip option:selected").attr('attr');
+				var yxbz = $("#sip option:selected").attr('bz');
+				var r = Math.floor(Math.random()*10+1);
+				for(var i in self.object){
+					if(self.object[i].s_id == si){
+						biaoshi = self.object[i].s_biaoshi;
+					}
+				}
+				if(biaoshi && yxbz){
+					$.ajax({
+						types : 'get',
+						url : '<{$curl}>?ip='+domain+'&biaoshi='+biaoshi+'&pingtai='+yxbz+'&r='+r,
+						dataType : 'json',
+						jsonp: 'jsoncallback',
+						timeout:5000,
+						async:	true,
+						complete : function (data) {
+							self.get_data();
+						}
+					});
+				}else{
+					alert('请到GM工具设置标识');
+				}
+			},
+			get_data:function(){
+				$.ajax({
+					types : 'get',
+					url : '<{$curl}>/../json.php',
+					dataType : 'jsonp',
+					jsonp : 'callback',
+					cache : false,
+					complete : function (data){
+						//console.log(data);
+						//alert(data);
+						//$("dtatr_body").html(
+						//
+						//);
+					}
+				});
+			}
+		}
+		var callback = function(data){
+			if(data.summoney){
+				var arpu = (parseInt(data.summoney)/parseInt(data.num)).toFixed(2);
+			}else{
+				var arpu = 0;
+			}
+			if(data.cnum){
+				var per = (parseInt(data.cnum)/parseInt(data.login)).toFixed(2) * 100;
+			}else{
+				var per = 0;
+			}
+			$("#dtatr_body").html(
+				'<tr><td>实时</td><td>'+data.login+'</td><td>'+data.online+'</td><td>'+data.cnum+'</td><td>'+data.num+'</td><td>'+data.jiaose+'</td><td>'+data.summoney+'</td><td>'+per+'%</td><td>'+arpu+'</td></tr>'
+			);
+		}*/
+		
+	</script>
+</body>
+</html>

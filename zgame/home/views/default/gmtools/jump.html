@@ -1,0 +1,31 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<title>跳转 </title>
+</head>
+<body>
+<input type="hidden" id="type" value="<{$ty}>">
+<script src="<{$res}>/js/jquery.js" type="text/javascript"></script>
+<script src="<{$res}>/js/jquery-ui.js" type="text/javascript"></script> 
+<script type="text/javascript">
+	//function jump(){
+		alert ('处理成功');
+		if($("#type").val() < 4){
+			window.location.href="http://yxht.aofyx.com/zhanshen/zgame/index.php/gmoperate/show";	
+		}else if($("#type").val() == 4){
+			window.location.href="http://http://yxht.aofyx.com/zhanshen/zgame/index.php/gmemail/show";
+		}else if($("#type").val() == 5){
+			window.location.href="http://yxht.aofyx.com/zhanshen/zgame/index.php/gmoperate/show";
+		} 
+	//}
+	//$(document).ready(function(){
+	//		jump();
+	//	})
+</script>
+
+ 
+</body>
+
+</html>

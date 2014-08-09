@@ -1,0 +1,324 @@
+<?php /* Smarty version 2.6.18, created on 2014-07-31 10:01:48
+         compiled from recharge/recharge_duibi.html */ ?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>充值对比</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link href="<?php echo $this->_tpl_vars['res']; ?>
+/css/skin.css" rel="stylesheet" type="text/css">
+	<link href="<?php echo $this->_tpl_vars['res']; ?>
+/css/jquery-ui.css" rel="stylesheet" type="text/css">
+	<style type="text/css">
+	<!--
+	body {
+		margin-left: 0px;
+		margin-top: 0px;
+		margin-right: 0px;
+		margin-bottom: 0px;
+		background-color: #EEF2FB;
+		font-size: 12px;
+	}
+	-->
+	</style>
+</head>
+<body>
+	<div>
+		<div>
+			<div>
+				<table class="explain">
+					<thead>
+					</thead>
+					<tbody style="font-family:Mingliu">
+						<tr>
+							<td width="5%"  class="tableleft"><b>说明：</b></td>
+						</tr>
+						<tr>
+							<td width="95%" class="tableleft">1、**********</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<div class="topinfo">
+				<div>
+					<input type="button" value="选择服务器" id ="sel">
+					<!--<span>服务器：</span>
+					<?php $_from = $this->_tpl_vars['ipList']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
+    foreach ($_from as $this->_tpl_vars['ip']):
+?>
+						<input type="checkbox" name="db" value='<?php echo $this->_tpl_vars['ip']['s_id']; ?>
+'  class="cbox"/><span><?php echo $this->_tpl_vars['ip']['s_name']; ?>
+</span>
+					<?php endforeach; endif; unset($_from); ?>-->
+				</div>
+			</div>
+			
+			<div class="topinfo">
+				<div>
+					<span>日期：</span>
+					<input type="text" class="input1" id="startdate" value="<?php echo $this->_tpl_vars['startDate']; ?>
+"/>至<input type="text" class="input1" id="enddate" value="<?php echo $this->_tpl_vars['endDate']; ?>
+"/>
+					<!--<input type="checkbox" checked="checked" id="openItem"/><label for="openItem">展开</label><input>-->
+					<span>对比项：</span>
+					<select id = "duibi">
+						<!--<option value="4">全部对比</option>-->
+						<option value="1">充值金额</option>
+						<option value="2">充值人数</option>
+						<option value="3">充值次数</option>
+					</select>
+					<input type="button" value="查询" id="querybtn" style="margin-left:20px"/>
+				</div>
+			</div>
+			
+			<div style="clear:both"></div>
+			
+			<div class="tabitem">				
+				<div>
+					<table class="mytable" style="display:none">
+						<thead id="dtatr_thead">
+						</thead>
+						<tbody id="dtatr_body">
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+			<!--弹出覆盖层-->
+			<div class="overlay" style="display:none">
+				<table style="width:220px;height:100%;margin:0 auto;">
+					<tr>
+						<td style="text-align:center">
+							<img src='<?php echo $this->_tpl_vars['res']; ?>
+/images/ajax-loader.gif'/>
+						</td>
+					</tr>
+				</table>
+			</div>
+			
+			<div style="clear:both"></div>
+		</div>
+		
+	</div>
+	<!--弹出覆盖层-->
+	<div class="overlay" style="display:none">
+		<table style="width:220px;height:100%;margin:0 auto;">
+			<tr>
+				<td style="text-align:center">
+					<img src='<?php echo $this->_tpl_vars['res']; ?>
+/images/ajax-loader.gif'/>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<!-- 服务器 -->
+	<div id="dform"  style="display:none">
+		<div class="ajaxform">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+				
+				<?php $_from = $this->_tpl_vars['ipList']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
+    foreach ($_from as $this->_tpl_vars['ip']):
+?>
+					<tr>
+						<td>
+						<input type="checkbox" name="db" value='<?php echo $this->_tpl_vars['ip']['s_id']; ?>
+'  class="cbox"/><span><?php echo $this->_tpl_vars['ip']['s_name']; ?>
+</span>
+						</td>
+					</tr>
+				<?php endforeach; endif; unset($_from); ?>
+			</table>
+		</div>
+	</div>
+	
+	<script src="<?php echo $this->_tpl_vars['res']; ?>
+/js/jquery.js" type="text/javascript"></script>
+	<script src="<?php echo $this->_tpl_vars['res']; ?>
+/js/jquery-ui.js" type="text/javascript"></script>
+	<script src="<?php echo $this->_tpl_vars['res']; ?>
+/js/function.js" type="text/javascript"></script> 	
+	<script type="text/javascript">
+		var recharge_duibi = {
+			INIT : function(){
+				var self = this;
+				
+				//时间插件
+				$("#startdate").datepicker();
+				$("#enddate").datepicker();
+				
+				showTitle("充值数据分析:充值对比");
+			
+				$("#querybtn").click(function(){
+					if( validator("startdate", "enddate") ){
+						var db = [];
+						$('input[name=db]:checked').each(function() {
+							db.push($(this).val());
+						});
+						self.show(db);
+					}
+				})
+				
+				//展开
+				$("#openItem").click(function() {
+					if($(this).is(":checked")) {
+						$(".row").attr("rowspan", 3);
+						$(".other").show();
+					} else {
+						$(".row").attr("rowspan", 1);
+						$(".other").hide();
+					}
+				})
+				
+				$("#duibi").change(function() {
+					if($("#duibi").val() == 4) {
+						$(".row").attr("rowspan", 1);
+						$(".other1").show();
+						$(".other2").show();
+						$(".other3").show();
+					} else if($("#duibi").val() == 1){
+						$(".other3").show();
+						$(".other1").hide();
+						$(".other2").hide();
+					}else if($("#duibi").val() == 2){
+						$(".other1").show();
+						$(".other3").hide();
+						$(".other2").hide();
+					}else if($("#duibi").val() == 3){
+						$(".other2").show();
+						$(".other3").hide();
+						$(".other1").hide();
+					}
+				})
+				
+				$("#sel").click(function(){
+					
+					$("#dform").dialog({
+							height: 500,
+							width: 700,
+							buttons :{
+								"确认": function(){
+									var db = [];
+									$('input[name=db]:checked').each(function() {
+										db.push($(this).val());
+									});
+									self.show(db);
+									$(this).dialog("close");
+								},
+								"关闭" : function(){
+									$(this).dialog("close");
+								}
+							}
+						})
+				})
+			},
+			
+			//table交叉样式
+			 color_table : function(table) {
+				$("#"+table+" tr:odd").css("background-color", "#edf2f7"); 
+				$("#"+table+" tr:odd").css("background-color","#e0f0f0"); 
+			 },
+			 
+			show : function(db) {
+			/*var db = [];
+				$('input[name=db]:checked').each(function() {
+					db.push($(this).val());
+				});
+				*/
+						
+				$.ajax({
+					type : 'POST',
+					url : '<?php echo $this->_tpl_vars['logicApp']; ?>
+/rechargeduibi/getRecords',
+					dataType : 'json',
+					data : {
+						db : db,
+						startDate : $('#startdate').val(),
+						endDate :	$('#enddate').val()
+					},
+					beforeSend : function(){
+						$(".overlay").show();
+					},
+					complete : function(){
+						$(".overlay").hide();
+					},
+					success : function (data) {
+						var result = data.result;
+						if(typeof(result) != 'undefined' && result.length > 0) {
+							var gamedb = data.gamedb;
+							var thread = "<tr>";
+							thread += "<th width='100px'>日期</th>";
+							thread += "<th>对比项</th>";
+							thread += "<th>合计</th>";
+							
+							for(var k in gamedb) {
+								thread += "<th>" + gamedb[k] + "</th>";
+							}
+							thread += "</tr>";
+							$("#dtatr_thead").html(thread);
+
+							var tbody = "";
+							var n = 0;
+							for(var i in result) {
+								/*if(n != 0 && n%3 != 0 && n%2 != 0) {
+									tbody += "<tr class='other1'>";
+								} else {
+									tbody += "<tr>";
+								}
+								if(n != 0 && n%3 != 0 && n%2 == 0) {
+									tbody += "<tr class='other2'>";
+								} else {
+									tbody += "<tr>";
+								}
+								if(n == 0 || n%3 == 0) {
+									tbody += "<td class='row' rowspan='3'>" + result[i][0] + "</td>";
+								}*/
+								if(n != 0 && n%3 == 1 ) {
+									tbody += "<tr class='other1' style='display: none'>";
+									tbody += "<td class='row' rowspan='1'>" + result[i][0] + "</td>";
+								}
+								else if(n != 0 && n%3 == 2 ) {
+									tbody += "<tr class='other2' style='display: none'>";
+									tbody += "<td class='row' rowspan='1'>" + result[i][0] + "</td>";
+								}else if(n == 0 || n%3 == 0){
+									tbody += "<tr class='other3'>";
+									tbody += "<td class='row' rowspan='1'>" + result[i][0] + "</td>";
+								}else {
+									tbody += "<tr>";
+								}
+								tbody += "<td>" + result[i][1] + "</td>";
+								tbody += "<td>" + result[i][2] + "</td>";
+								for(var k in gamedb) {
+									var index = 3 + parseInt(k);
+									tbody += "<td>" + result[i][index] + "</td>";
+								}
+								tbody += "</tr>";
+								n++;
+							}
+							$("#dtatr_body").html(tbody);
+							$(".mytable").show();
+						}else {
+							$("#dtatr_thead").html("");
+							
+							$("#dtatr_body").html("<tr><td colspan='3'>没有数据！</td></tr>");
+							$(".mytable").show();
+						}
+					},
+					error : function () {
+						$("#dtatr_thead").html("");
+							
+						$("#dtatr_body").html("<tr><td colspan='3'>没有数据！</td></tr>");
+						$(".mytable").show();
+					}
+				})
+			}
+			
+		}
+		
+		$(document).ready(function(){
+			recharge_duibi.INIT();
+		})
+	</script>
+</body>
+</html>
