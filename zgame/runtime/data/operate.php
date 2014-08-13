@@ -1,1 +1,0 @@
-<?php {"pri":"o_id","0":"o_name","1":"o_domain","2":"o_operate","3":"o_type","4":"o_instime"}yes

@@ -1,1 +1,0 @@
-<?php {"pri":"cf_id","0":"cf_code","1":"cf_name","2":"cf_flag","3":"cf_createtime","4":"cf_updatetime"}yes
