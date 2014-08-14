@@ -66,6 +66,7 @@
 							<option value="0" >全部</option>
 						</select>
 					</label>
+					日期<input type="text" class="input1" id="startdate" value="<{$startdate}>"/>
 					查看最近<select id="chatnum">
 								<option value="100">100</option>
 								<option value="200">200</option>
@@ -89,7 +90,7 @@
 								<th width="120">角色名</th>
 								<th>说话内容</th>
 								<th width="110">时间</th>
-								<th width="90">操作</th>
+								<th width="100">操作</th>
 							</tr>
 						</thead>
 						<tbody id="dtatr_body">
@@ -220,6 +221,7 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			showTitle("GM工具:聊天监控");
+			$("#startdate").datepicker();
 			$('#history').click(function(){
 					show();
 			});
@@ -257,7 +259,8 @@
 					data: {
 						ip: $("#sip").val(),
 						chatnum:$("#chatnum").val(),
-						chatType:checked
+						chatType:checked,
+						startdate:$('#startdate').val()
 					},
 					beforeSend: function(){
 						$("#dtatr_body").html("<tr><td colspan='6'><img src='<{$res}>/images/loading.gif'/></td></tr>");
@@ -273,14 +276,34 @@
 								tbody += "<td>" + data[i]["send_name"] + "</td>";
 								tbody += "<td>" + data[i]["content"] + "</td>";
 								tbody += "<td>" + data[i]["date"] + "</td>";
-								tbody += "<td><a href='javascript:;' class='djbt' roleid="+data[i]['playid']+" rolename="+data[i]["send_name"]+">冻结</a>&nbsp;&nbsp;";
-								tbody += "<a href='javascript:;' class='xxbt' roleid="+data[i]['playid']+" rolename="+data[i]["send_name"]+">下线</a>&nbsp;&nbsp;";
-								tbody += "<a href='javascript:;' class='jybt' roleid="+data[i]['playid']+" rolename="+data[i]["send_name"]+">禁言</a></td>";
+//								tbody += "<td><a href='javascript:;' class='djbt' roleid="+data[i]['playid']+" rolename="+data[i]["send_name"]+">冻结</a>&nbsp;&nbsp;";
+//								tbody += "<a href='javascript:;' class='xxbt' roleid="+data[i]['playid']+" rolename="+data[i]["send_name"]+">下线</a>&nbsp;&nbsp;";
+//								tbody += "<a href='javascript:;' class='jybt' roleid="+data[i]['playid']+" rolename="+data[i]["send_name"]+">禁言</a></td>";
+								if(data[i]['status']){
+									tbody += "<td>已冻结</td>";
+								}else {
+									tbody +="<td><a href='javascript:;' class='killPlayer' roleid="+data[i]['playid']+" rolename="+data[i]["send_name"]+">冻结并下线</a>&nbsp;&nbsp;";
+									tbody += "<a href='javascript:;' class='jybt' roleid="+data[i]['playid']+" rolename="+data[i]["send_name"]+">禁言</a></td>";
+								}
 								tbody += "</tr>";
 							}
 							$("#dtatr_body").html(tbody);
 							
-											//快捷冻结
+							
+	//冻结并下线
+	$('.killPlayer').click(function(){
+		var roleid = $(this).attr('roleid');
+		var rolename = $(this).attr('rolename');
+		var ip = $("#sip").val();
+		var obj = $(this);
+		
+		$.post('<{$logicApp}>/gmchat/killPlayer',{roleid:roleid,rolename:rolename,ip:ip},function(data){
+			obj.parents('td').html(data.msg);
+		},'json');
+		
+	});
+							
+	//快捷冻结
 	$(".djbt").click(function(){
 		var id = $(this).attr('roleid');
 		var rolename = $(this).attr('rolename');

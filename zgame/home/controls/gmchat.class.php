@@ -31,6 +31,7 @@ class gmchat{
 	public function show(){
 		$ipList = parent::getIpList();
 		$this->assign("ipList",$ipList);
+		$this->assign('startdate',date('Y-m-d'));
 		$this->display("gmtools/gm_chat");
 	}
 	
