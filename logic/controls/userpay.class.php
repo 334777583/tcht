@@ -110,7 +110,7 @@ class userpay{
 			$result['onlinePer'] = $totalAvgOnlineTime==0?0:round($payAll/$totalAvgOnlineTime,2);
 			
 			//$day = round((time()-$chongzhi[0]['c_ts'])/(24*60*60));
-			$day = (strtotime(date('Y-m-d'))-strtotime(date('Y-m-d',$chongzhi[0]['c_ts'])))/(24*60*60);
+			$day = (strtotime(date('Y-m-d'))-strtotime(date('Y-m-d',$chongzhi[0]['c_ts'])))/(24*60*60)+1;
 			
 			$result['dPer'] = round($payAll/$day,2);
 			$month = floor((time()-$chongzhi[0]['c_ts'])/(30*24*60*60))+0.5;
