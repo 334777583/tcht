@@ -42,8 +42,8 @@ class gmchat{
 		$Gamebase = D('game_base');
 		$g_folder = $Gamebase->field('g_ip')->table('gamedb')->where('g_id = '.$ip)->find();
 		$path = LPATH . $g_folder['g_ip'] . '/' . $date . '/';	//日志文件所在目录路径
- 		$chatFilePath = $path.'/log-type-18.log';
-		//$chatFilePath = LPATH.'192.168.0.64/2014-07-29/log-type-18.log';
+// 		$chatFilePath = $path.'/log-type-18.log';
+		$chatFilePath = LPATH.'192.168.0.64/2014-07-29/log-type-18.log';
 		if (!is_file($chatFilePath)){
 			echo '1';exit;//文件不存在退出
 		}
@@ -177,7 +177,7 @@ class gmchat{
 		
 		$cmdArr['cmd'] = "kickplayer";
 		$cmdArr['name'] = $rolename;
-		$cmdArr['info'] = '在聊天监控中，查到玩家发送非法信息';
+		$cmdArr['info'] = '玩家因发布不文明信息，强制下线';
 		$offineData = array(
 				'GmCmd' => addslashes ( myjson ( $cmdArr ) ),
 				'ServerId' => $ip,
@@ -193,7 +193,7 @@ class gmchat{
 					"f_role_name"	=> $rolename,
 					"f_status"		=> 1,
 					"f_time" 		=> date("Y-m-d H:i:s"),
-					"f_reason" 		=> '玩家因发布不文明信息，强制下线',
+					"f_reason" 		=> '在聊天监控中，查到玩家发送非法信息',
 					"f_operaor" 	=> $this->user["username"],
 					"f_callstatus" 	=>1,
 					"f_roleStatus" 	=>1,
