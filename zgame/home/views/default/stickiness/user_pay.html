@@ -32,6 +32,9 @@
 						<tr>
 							<td width="95%" class="tableleft">1、所有充值金额以元宝计算；</td>
 						</tr>
+						<tr>
+							<td width="95%" class="tableleft">2、用户以角色计算,一个角色算一个用户；</td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
@@ -100,7 +103,7 @@
                     endDate:$('#enddate').val()
                 },
                 beforeSend: function(){
-                    $("#dtatr_body").html("<tr><td colspan='11'><img src='<{$res}>/images/loading.gif'/></td></tr>");
+                    $("#dtatr_body").html("<tr><td colspan='12'><img src='<{$res}>/images/loading.gif'/></td></tr>");
                 },
                 success: function(data){
                     if (typeof(data) != 'undefined' && data.length > 0) {
@@ -124,11 +127,11 @@
                         $("#dtatr_body").html(tbody);
                     }
                     else {
-                        $("#dtatr_body").html("<tr><td colspan='11'>没有数据！</td></tr>");
+                        $("#dtatr_body").html("<tr><td colspan='12'>没有数据！</td></tr>");
                     }
                 },
                 error: function(){
-                    $("#dtatr_body").html("<tr><td colspan='11'>没有数据！</td></tr>");
+                    $("#dtatr_body").html("<tr><td colspan='12'>没有数据！</td></tr>");
                 }
             })
 		}

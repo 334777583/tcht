@@ -69,7 +69,19 @@ class userrole{
 		//注册数type8
 		$reg_count = $obj->fquery("select count(id) as count from game_user");
 		//在线3
-		$online = $obj->fquery("SELECT count(GUID) count from player_table where bOnline=1 and ServerId = {$ip}");
+		$user = $obj->fquery("SELECT GUID,AccountId,LoginTime,bOnline,ServerId from player_table where ServerId = {$ip}");
+		$online = 0;
+		$loginnum = 0;
+		foreach ($user as $v){
+			if ($v['bOnline']==1){
+				$online++;
+			}
+			$time = time()-$v['LoginTime'];
+			if ($time<=(24*60*60*3)){
+				$loginnum ++;
+			}
+		}
+		
 		//登录数
 		$result[0]['login'] = D('game'.$ip)->table('detail_login')->total();
 		$loginLogFilePath = $path.'/log-type-2.log';
@@ -123,7 +135,8 @@ class userrole{
 		$result[0]['jiaose'] = empty($jiaose1)?0:count($jiaose1);//创角人数（账号去重）
 		$result[0]['jiaoseall'] = empty($jiaose)?0:$jiaose[0]['count'];//创角人数(总)
 		$result[0]['regcount'] = $reg_count[0]['count'];
-		$result[0]['online'] = empty($online)?0:$online[0]['count'];//当前在线
+		$result[0]['online'] = $online;//当前在线
+		$result[0]['loginnum'] = $loginnum;//登陆数
 		echo json_encode($result);exit();
 	}
 	
@@ -323,10 +336,14 @@ class userrole{
 	//任务集市创角统计
 	public function taskquery(){
 		$ip = get_var_value('sip');
+		$date = get_var_value('date')==null?date('Y-m-d H:i:s'):get_var_value('date');
+		$dateTime = strtotime($date);
+		
 		global $task_db;
 		$Task = F($task_db['db'], $task_db['ip'], $task_db['user'], $task_db['password'], $task_db['port']);
-		$taskAccount = $Task->table('task_market')->where('serverid='.$ip)->select();
+		$taskAccount = $Task->table('task_market')->where("serverid=$ip and date<='{$date}'")->select();
 		$account1 = array();
+		
 		foreach ($taskAccount as $k=>$v){
 			$account1[] = '"'.$v['openid'].'"';
 		}
@@ -339,9 +356,10 @@ class userrole{
 				'paypeoplenum'=>0,//付费人数
 				'paynum'=>0,//付费次数
 				'payarpu'=>0,//	ARPU
+				'loginnum'=>0,//	ARPU
 				'online'=>0//当前在线
 		) ;
-		$result['tasknum'] = "总任务数：(".count($account1).")玩家数：（".count($account).")";
+		$result['tasknum'] = "总记录数：(".count($account1).")玩家数：（".count($account).")";
 		
 		//echo count($account);exit;
 		$account = implode(',', $account);//任务集市玩家账号
@@ -350,20 +368,24 @@ class userrole{
 		$sever = 's'.$ip;
 		$obj = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
 		
-		$sql = "SELECT a.account,b.GUID,b.RMB,b.bOnline from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId WHERE a.account in(".$account.")";
+		$sql = "SELECT a.account,b.GUID,b.RMB,b.bOnline,LoginTime from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId WHERE a.account in(".$account.") and b.CreateTime<='{$dateTime}'";
 		$play_table = $obj->fquery($sql);
  		//echo json_encode($sql);exit;
  		
  		$accountTem1 = array();//玩家账号去重
  		foreach ($play_table as $k=>$v){
  			$accountTem1[] = $v['account'];
+ 			$time = time()-$v['LoginTime'];
+ 			if ($time<=(24*60*60*3)){
+ 				$result['loginnum'] ++;
+ 			}
  			if ($v['bOnline']==1){
  				$result['online'] ++;
  			}
  		}
  		$result['rolenum'] = count(array_unique($accountTem1));
  		
- 		$pay = D("chongzhi")->fquery("SELECT c_price,c_num,c_openid,c_sid from chongzhi where c_sid={$ip} and c_state=2 and c_openid in ({$account})");
+ 		$pay = D("chongzhi")->fquery("SELECT c_price,c_num,c_openid,c_sid from chongzhi where c_sid={$ip} and c_state=2 and c_openid in ({$account}) and c_ts<=$dateTime");
  		$openidTem = array();
  		foreach ($pay as $k=>$v){
  			$result['paynum']++;

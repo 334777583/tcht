@@ -36,6 +36,9 @@
 						<tr>
 							<td width="95%" class="tableleft">1、ARPU=付费总额/付费人数</td>
 						</tr>
+						<tr>
+							<td width="95%" class="tableleft">2、登陆数：截止查询时间3天内有登陆过的玩家数量</td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
@@ -71,6 +74,7 @@
 							<th>当天付费人数</th>
 							<th>付费次数</th>
 							<th>ARPU</th>
+							<th>登录数</th>
 							<th>当前在线</th>
 						</tr>
 					</thead>
@@ -86,6 +90,7 @@
 							<th>付费人数</th>
 							<th>付费次数</th>
 							<th>ARPU</th>
+							<th>登录数</th>
 							<th>当前在线</th>
 						</tr>
 					</thead>
@@ -136,7 +141,7 @@
 		//	$("#enddate").datepicker();
 	
 	$("#taskquery").click(function(){
-		$.post("<{$logicApp}>/userrole/taskquery",{sip:$('#sip').val()},
+		$.post("<{$logicApp}>/userrole/taskquery",{sip:$('#sip').val(),date:$("#timer").val()},
 		function(data){
 			//data = JSON.parse(data);
 			$('#dtatr_body1').empty();
@@ -146,6 +151,7 @@
 			str += '<td>'+data['paypeoplenum']+'</td>';
 			str += '<td>'+data['paynum']+'</td>';
 			str += '<td>'+data['payarpu']+'</td>';
+			str += '<td>'+data['loginnum']+'</td>';
 			str += '<td>'+data['online']+'</td>';
 			str += '</tr>';
 			$('#dtatr_body1').append(str);
@@ -170,6 +176,7 @@
 				}else {
 					str += '<td>'+(parseInt(data[0].paymoney)/parseInt(data[0].paynum)).toFixed(2)+'</td>';
 				}
+				str += '<td>'+data[0]['loginnum']+'</td>';
 				str += '<td>'+data[0]['online']+'</td>';
 				str += '</tr>';
 				$('#dtatr_body1').html('');
@@ -196,6 +203,7 @@
 			}else {
 				str += '<td>'+(parseInt(data[0].paymoney)/parseInt(data[0].paynum)).toFixed(2)+'</td>';
 			}
+			str += '<td>'+data[0]['loginnum']+'</td>';
 			str += '<td>'+data[0]['online']+'</td>';
 			str += '</tr>';
 			$('#dtatr_body1').html('');
