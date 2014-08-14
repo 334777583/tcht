@@ -32,7 +32,7 @@ class userpay{
 	 */
 	public function getData(){
 		$endDate = get_var_value('endDate');
-		$dbList = D('game_admin')->fquery("select g_id from gamedb where g_flag=1");
+		$dbList = D('game_base')->fquery("select g_id from gamedb where g_flag=1");
 		$endDateTime = strtotime($endDate)+24*60*60;
 		$startDateTime = $endDateTime-15*24*60*60;
 		
