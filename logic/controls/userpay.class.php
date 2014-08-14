@@ -32,7 +32,7 @@ class userpay{
 	 */
 	public function getData(){
 		$endDate = get_var_value('endDate');
-		$dbList = D('game_admin')->fquery("select g_id from gamedb where g_flag=1");
+		$dbList = D('game_base')->fquery("select g_id from gamedb where g_flag=1");
 		$endDateTime = strtotime($endDate)+24*60*60;
 		$startDateTime = $endDateTime-15*24*60*60;
 		
@@ -43,6 +43,7 @@ class userpay{
 					'roleNum'=>0,//开服至统计截至日期的全部创建用户
 					'payNum'=>0,//开服至统计截至日期的全部付费用户
 					'activeNum'=>0,//截止统计日期前15天的全服付费用户
+					'activeLoginNum'=>0,//活跃用户数
 					'payMore'=>0,//截至统计日期付费次数2次或以上的全部付费用户
 					'payPer'=>0,//注册用户付费率：付费用户/注册数
 					'onlinePer'=>0,//平均在线付费率：总充值/总平均在线时间
@@ -64,6 +65,7 @@ class userpay{
 					}
 				}
 			}
+			$result['activeLoginNum'] = $activeNum;
 			
 			$ChongZhiObj = D('chongzhi');
 			$chongzhi = $ChongZhiObj->fquery("SELECT c_openid,c_pid,c_ts,c_times,c_price,c_num,c_ts from chongzhi WHERE c_sid=".$v['g_id']." and c_state=2 and c_ts<={$endDateTime}");
