@@ -32,7 +32,7 @@ class userpay{
 	 */
 	public function getData(){
 		$endDate = get_var_value('endDate');
-		$dbList = D('game_base')->fquery("select g_id from gamedb where g_flag=1");
+		$dbList = D('game_admin')->fquery("select g_id from gamedb where g_flag=1");
 		$endDateTime = strtotime($endDate)+24*60*60;
 		$startDateTime = $endDateTime-15*24*60*60;
 		
@@ -66,26 +66,39 @@ class userpay{
 			}
 			
 			$ChongZhiObj = D('chongzhi');
-			$chongzhi = $ChongZhiObj->fquery("SELECT c_openid,c_ts,c_times,c_price,c_num,c_ts from chongzhi WHERE c_sid=".$v['g_id']." and c_state=2 and c_ts<={$endDateTime}");
-// 			$activechongzhi = $ChongZhiObj->fquery("SELECT c_openid from chongzhi WHERE c_sid=".$v['g_id']." and c_state=2 and c_ts<={$endDateTime} and c_ts>={$startDateTime} group by c_openid");
-// 			$chongzhipaymore = $ChongZhiObj->fquery("SELECT c_openid,count(*) as count from chongzhi where c_sid=".$v['g_id']." and c_state=2 and c_ts<={$endDateTime} group by c_openid having count>2");
-// 			$result['activeNum'] = count($activechongzhi);
-// 			$result['payMore'] = count($chongzhipaymore);$payAll = 0;//充值总额
+			$chongzhi = $ChongZhiObj->fquery("SELECT c_openid,c_pid,c_ts,c_times,c_price,c_num,c_ts from chongzhi WHERE c_sid=".$v['g_id']." and c_state=2 and c_ts<={$endDateTime}");
+			
+			if (empty($chongzhi)){
+				continue;
+			}
+			
 			$payAll = 0;
+			$tem0 = array();
+			$tem1 = array();
+			$tem2 = array();
 			foreach ($chongzhi as $ck=>$cv){
-				if ($cv['c_ts']>$startDateTime){
+				if (!in_array($cv['c_pid'], $tem0)){
+					$result['payNum'] ++;
+					$tem0[] = $cv['c_pid'];
+				}
+				
+				if (!in_array($cv['c_pid'], $tem1)&&($cv['c_ts']>$startDateTime)){
 					$result['activeNum'] ++;
+					$tem1[] = $cv['c_pid'];
 				}
-				if ($cv['c_times']>1){
+				
+				if (!in_array($cv['c_pid'], $tem2)&&($cv['c_times']>1)){
 					$result['payMore'] ++;
+					$tem2[] = $cv['c_pid'];
 				}
+				
 				$payAll += $cv['c_price']*$cv['c_num'];
 			}
 			
 			$result['date'] = date('Y-m-d',$chongzhi[0]['c_ts']);
 			$result['avtivePayPer'] = $activeNum==0?0:round($result['activeNum']*100/$activeNum,2);
 			$result['roleNum'] = count($play);
-			$result['payNum'] = count($chongzhi);
+// 			$result['payNum'] = count($chongzhi);
 			$result['payPer'] = round($result['payNum']*100/$result['roleNum'],2);
 			
 			$Game = D('game'.$v['g_id']);
