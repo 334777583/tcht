@@ -158,7 +158,7 @@ class upgrade{
 						break;
 				}
 			}
-			
+			sort($upgrade);
 			echo json_encode(array(
 					'result' => $upgrade,
 					'user'=>$user,

@@ -1,0 +1,1254 @@
+<?php
+/**
+ * FileName: gminfo.class.php
+ * Description:用户信息查询页面
+ * Author: xiaochengcheng,tanjianchengcc@gmail.com
+ * Date:2013-3-28 上午11:36:42
+ * Version:1.00
+ */
+class gminfo{
+	/**
+	 * 每页显示记录数
+	 * @var int
+	 */
+	private $pageSize = 10;
+	
+	/**
+	 * 当前页
+	 * @var int
+	 */
+	private $curPage = 1;
+	
+	/**
+	 * 服务器IP
+	 * @var string
+	 */
+	private $ip;
+	
+	/**
+	 * 检索模式（0：账号；1：昵称；2：ID）
+	 * @var int
+	 */
+	private $type;
+	
+	/**
+	 * 查询内容
+	 * @var string;
+	 */
+	private $text;
+	
+	/**
+	 * 是否模糊查询（0：是；1：否）
+	 * @var int
+	 */
+	private $fuzzy;
+	
+	/**
+	 * gm接口类
+	 * @var class
+	 */
+	public $gm;
+	
+	/**
+	 * 用户信息
+	 */
+	public $user;
+	
+	/**
+	 * 初始化数据
+	 */
+	public function __construct(){
+		if(!$this->user = autoCheckLogin::isLogin()){
+			echo "not available!";
+			exit();
+		}else{
+			if(!in_array("00300100", $this->user["code"])){
+				echo "not available!";
+				exit();
+			}
+		}
+		$this->pageSize = get_var_value("pageSize") == NULL?10:get_var_value("pageSize");
+		$this->curPage =  get_var_value("curPage") == NULL?1:get_var_value("curPage");
+		$this->ip =  get_var_value("ip") == NULL?-1:get_var_value("ip");
+		$this->type =  get_var_value("type") == NULL?0:get_var_value("type");
+		$this->text =  get_var_value("text") == NULL?"":get_var_value("text");
+		$this->fuzzy =  get_var_value("fuzzy") == NULL?0:get_var_value("fuzzy");
+		$this->gm = new autogm();
+	}
+	
+	/**
+	 * ajax请求用户基本信息数据
+	 */
+	public function get(){ 
+		//global $gm_db;
+		$sex_type = array('0' => '无性别', '1' => '男', '2' => '女');			
+		$career_type = array('0' => '无职业', '1' => '猛将', '2' => '神弓', '3' => '谋士');
+		
+		list($ip, $gid, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$gid);
+		
+		//$point = F($gm_db['db'], $gm_db['ip'], $gm_db['user'], $gm_db['password']);
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		$plays = array();					//玩家信息
+		if($this -> text == '') {
+			$list = $point -> table('player_table') -> field('sex,carrer,guid,accountid,rolename,level,createtime,logintime') -> limit(intval(($this->curPage-1)*$this->pageSize),intval($this->pageSize)) -> where('serverid ='.$sid) -> select();
+			$total = $point -> table('player_table') -> where('serverid ='.$sid) -> total();
+		
+		} else {
+			$where_field = '';
+			switch($this->type) {
+				case 0 : 
+					$where_field .= 'accountid like "%' . $this->text . '%"';
+					break;
+				case 1 :
+					$where_field .=	'guid like "%' . $this->text . '%"';
+					break;
+				case 2 :
+					$where_field .= 'rolename like "%' . $this->text . '%"';
+					break;
+			}
+			
+			$where_field .= ' and serverid ='.$sid;
+		
+			$list = $point -> table('player_table') -> field('sex,carrer,guid,accountid,rolename,level,createtime,logintime') -> where($where_field) -> limit(intval(($this->curPage-1)*$this->pageSize),intval($this->pageSize)) -> select();
+			$total = $point -> table('player_table') -> where($where_field) -> total();
+
+		}
+		
+		if($list != '') {
+			foreach($list as $item) {	//组织返回页面的plays信息
+				$play = array();		//保存一个玩家的信息
+				$play['sex'] = $sex_type[$item['sex']];
+				$play['profession'] = $career_type[$item['carrer']];
+				$play['id'] = $item['guid'];
+				$play['accountCode'] = $item['accountid'];
+				$play['name'] = $item['rolename'];
+				$play['level'] = $item['level'];
+				$play['createTime'] = date('Y-m-d H:i:s',$item['createtime']);
+				$item['logintime'] == 0 ?	$play['lastTime'] = '' : $play['lastTime'] = date('Y-m-d H:i:s',$item['logintime']);
+				$play['lastIp'] = '';
+				$play['sumSec'] = 0;
+				$plays[] = $play;
+			}
+		}
+		
+		
+		foreach($plays as $k => $play){			//获取玩家最近在线时间，最近登录IP，总在线时长
+				$lastIp = '';					//最近登录IP
+				$sumSec = 0	;					//总在线时长
+				
+				$lt = $gameDb -> table('detail_login') -> where('d_userid ='.$play['id']) -> order('d_date desc') -> find();
+				if($lt != '') {					
+					$ss = $gameDb -> table('online_sec') -> field('sum(o_second) as sum') ->where('o_userid ='.$play['id']) -> find(); 
+					
+					if (isset($lt['d_ip'])) {
+						$lastIp = $lt['d_ip'];
+						$o = new autoipsearchdat();
+						$area = $o->findIp($lastIp);
+						if($area) {
+							$lastIp .= '(' . $area . ')';	
+						}
+					}
+					
+					if (isset($ss['sum'])) {
+						$sumSec = $ss['sum'];
+					}
+				}
+				
+				$plays[$k]['lastIp'] = $lastIp;
+				$plays[$k]['sumSec'] = $sumSec;
+			}
+		
+		$page = new autoAjaxPage($this->pageSize, $this->curPage, $total, "formAjax","go","page");
+		$pageHtml = $page->getPageHtml();
+		$result = array(
+				'pageHtml'=>$pageHtml,
+				'plays'=> $plays
+		);
+		echo json_encode($result);
+		exit;
+	 
+	}  
+	
+	/**
+	 * 获取玩家详细信息
+	*/
+	public function getDetailInfo(){
+		// global $gm_db;
+		// $point = F($gm_db['db'], $gm_db['ip'], $gm_db['user'], $gm_db['password']);
+		
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		$gid = get_var_value('gid');	//玩家id
+		$play = array();				//玩家详细信息
+		$equips = array();				//玩家装备信息
+		$sex_type = array('0' => '无性别', '1' => '男', '2' => '女');			
+		$career_type = array('0' => '无职业', '1' => '猛将', '2' => '神弓', '3' => '谋士');
+		
+		if($gid) {
+			$bo = $point -> table('player_table') -> where('guid ='.$gid) -> find();
+			if($bo != '') {
+				$data = $bo['seconddata'];
+				$da = json_decode($data,true);
+				$play['accountCode'] = $bo['accountid'];
+				$play['id']	= $gid;
+				$play['name'] = $bo['rolename'];
+				$play['sex'] = $sex_type[$bo['sex']];
+				$play['level'] = $bo['level'];
+				$play['viplevel'] = $bo['viplevel'];
+				$play['profession'] = $career_type[$bo['carrer']];
+				$play['guildid'] = $bo['guildid'];
+				$play['attack'] = $da['BattlePower'];
+				$play['mapId'] = $bo['lastsceneid'];
+				$play['recharge'] =	$bo['rmb'];
+				$play['gold'] =	$bo['gold'];
+				$play['bindGold'] =	$bo['bindgold'];
+				$play['coin'] =	$bo['coin'];
+				$play['bindcoin'] =	$bo['bindcoin'];
+				$play['createTime'] = date('Y-m-d H:i:s', $bo['createtime']);
+				$bo['logintime'] == 0 ?	$play['lastOnTime'] = '' : $play['lastOnTime'] = date('Y-m-d H:i:s',$bo['logintime']);
+				if($bo['bonline'] == 1){
+					$play['isOnline'] = '在线';
+				}else{
+					$play['isOnline'] = '不在线';
+				}
+				if($bo['forbidlogin'] == 0){
+					$play['accountState'] = '正常';
+				}else{
+					$play['accountState'] = '禁止登录';
+				}
+
+			}
+		}
+		
+		$result = array(
+					'player' =>  $play
+			);
+		echo json_encode($result);
+		exit;
+	}	
+	
+	/**
+	 * 获取背包信息
+	 */
+	public function getBagInfo() {
+		// global $gm_db;
+		// $point = F($gm_db['db'], $gm_db['ip'], $gm_db['user'], $gm_db['password']);
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$bag = array();
+		$tool_map = array();			//道具列表
+		
+		$file = ITEM."/item.json";
+		if (file_exists($file)) {
+			$get_str = '';//获取道具日志文件内容	
+			clearstatcache();
+			$fs = fopen($file,'r');
+			while(!feof($fs)){
+					$get_str .= fgets($fs);
+				}
+			fclose($fs);
+			$str = json_decode($get_str,true);
+			if($gid) {
+				$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+				
+				$tool_list = $gameDb -> table('tools_detail') -> select();
+				
+				if($list != '') {
+					$data = $list['packagedata'];
+					//$bag = $this->packdate($data);
+				}
+				$da = json_decode($data,true);
+				$da = $da['BagCellList'];
+				foreach($da as $key => $value){
+					$bag[$key] = $da[$key]['Cell'];
+					if(!empty($str[$value['Cell']['TemplateID']])){
+						$bag[$key]['name'] = $str[$value['Cell']['TemplateID']]['name'];
+						$bag[$key]['quality'] = $str[$value['Cell']['TemplateID']]['quality'];
+					}
+					$bag[$key]['CellID'] = $da[$key]['CellID'];
+				}
+				if($tool_list != '') {
+					foreach($tool_list as $tool) {
+						$tool_map[$tool['t_code']] = $tool['t_name'];
+					}
+				}
+			}
+			$result = array(
+						'bag' =>  $bag,
+						'tool' => $tool_map
+				);
+			echo json_encode($result);
+			exit;
+		}else{
+			echo "文件不存在";
+			exit;
+		}
+		
+	}
+
+	/**
+	 * 获取坐骑信息
+	 */
+	public function getHorseInfo() {
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$bag = array();
+		$tool_map = array();			//道具列表
+		
+		$file =ITEM."/skill.json";
+		$mount =ITEM."/mount.json";
+		$get_mou = '';//获取道具日志文件内容	
+			clearstatcache();
+			$mou = fopen($mount,'r');
+			while(!feof($mou)){
+					$get_mou .= fgets($mou);
+				}
+			fclose($mou);
+			$mou = json_decode($get_mou,true);
+		if (file_exists($file)) {
+			$get_str = '';//获取道具日志文件内容	
+			clearstatcache();
+			$fs = fopen($file,'r');
+			while(!feof($fs)){
+					$get_str .= fgets($fs);
+				}
+			fclose($fs);
+			$str = json_decode($get_str,true);
+			$resource = '';
+			foreach($str as $k => $value){
+				$resource[$k]['t_code']= $k;
+				$resource[$k]['t_name']= $value['SkillName'];
+				$resource[$k]['t_level'] = $value['SkillLevel'];
+			}
+			
+			if($gid) {
+				$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+				
+				if($list != '') {
+					$data = $list['battledata'];
+					$hor = $list['forevermapdata'];
+				}
+				$da = json_decode($data,true);
+				$da = $da['SkillList'];
+				$hor = json_decode($hor,true);
+				$ndl = 0;
+				$hol = 0;
+				$skn = 0;
+				foreach($hor as $k => $item){
+					if($item['k'] == 25){
+						$ndl = $item['v'];
+					}
+					if($item['k'] == 20){
+						$hol = $mou[$item['v']]['level'];
+					}
+					if($item['k'] == 23)
+						$skn = $item['v'];
+				}	
+				$skn = str_replace('=',':',$skn);	
+				$skn = str_replace('[','',$skn);
+				$skn = str_replace(']','',$skn);
+				$skn = str_replace(',}','}',$skn);
+				$skn = str_replace('"','',$skn);
+				$skn = str_replace('{','{"',$skn);
+				$skn = str_replace(':','":"',$skn);
+				$skn = str_replace(',','","',$skn);
+				$skn = str_replace('}"','"}',$skn);
+				$skn = str_replace('}}','"}}',$skn);
+				$skn = str_replace(':"{',':[{',$skn);
+				$skn = str_replace('},','}],',$skn);
+				$skn = str_replace('}}}','}]}]}',$skn);
+				
+				$skn = json_decode($skn,true);
+				$ga = '';
+				foreach($da as $key => $value){
+					if( $da[$key]['SkillTemplateId'] >=4000101 && $da[$key]['SkillTemplateId'] <=4001205 ){
+						//践踏
+						if($da[$key]['SkillTemplateId']>=4000101 && $da[$key]['SkillTemplateId']<= 4000105){
+							//$bag[$key]['qt'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['qtlevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//冲锋
+						if($da[$key]['SkillTemplateId']>=4000201 && $da[$key]['SkillTemplateId']<= 4000205){
+							//$bag[$key]['cf'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['cflevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//千里奔袭
+						if($da[$key]['SkillTemplateId']>=4000301 && $da[$key]['SkillTemplateId']<= 4000305){
+							//$bag[$key]['ql'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['qllevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//疾风破
+						if($da[$key]['SkillTemplateId']>=4000401 && $da[$key]['SkillTemplateId']<= 4000405){
+							//$bag[$key]['jf'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['jflevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//惊雷破
+						if($da[$key]['SkillTemplateId']>=4000501 && $da[$key]['SkillTemplateId']<= 4000505){
+							//$bag[$key]['jl'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['jllevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//天火破
+						if($da[$key]['SkillTemplateId']>=4000601 && $da[$key]['SkillTemplateId']<= 4000605){
+							//$bag[$key]['th'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['thlevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//金戈铁马
+						if($da[$key]['SkillTemplateId']>=4000701 && $da[$key]['SkillTemplateId']<= 4000705){
+							//$bag[$key]['jg'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['jglevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//八门金锁
+						if($da[$key]['SkillTemplateId']>=4000801 && $da[$key]['SkillTemplateId']<= 4000805){
+							//$bag[$key]['bm'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['bmlevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//一气化千
+						if($da[$key]['SkillTemplateId']>=4000901 && $da[$key]['SkillTemplateId']<= 4000905){
+							//$bag[$key]['yqhq'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['yqhqlevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//疾行
+						if($da[$key]['SkillTemplateId']>=4001001 && $da[$key]['SkillTemplateId']<= 4001005){
+							//$bag[$key]['jx'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['jxlevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//归元
+						if($da[$key]['SkillTemplateId']>=4001101 && $da[$key]['SkillTemplateId']<= 4001105){
+							//$bag[$key]['gy'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['gylevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						//御气
+						if($da[$key]['SkillTemplateId']>=4001201 && $da[$key]['SkillTemplateId']<= 4001205){
+							//$bag[$key]['yq'] = $resource[$value['SkillTemplateId']]['t_name'];
+							$bag[0]['yqlevel'] = $resource[$value['SkillTemplateId']]['t_level'];
+						}
+						
+						//$bag[0]['count']= count($bag[0]);
+						
+					}
+				}
+				$bag[0]['count']= count($bag[0]);
+				$bag[0]['nd']= $ndl;
+				$bag[0]['level']= $hol;
+				$bag[0]['skn'] = $skn['count'];
+				
+			}
+			$result = array(
+						'horse' =>  $bag
+				);
+			echo json_encode($result);
+			exit;
+		}else{
+			echo "文件不存在";
+			exit;
+		}
+	}
+	
+	/**
+	 * 获取装备信息
+	 */
+	public function getequipmentInfo() {
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$file =ITEM."/equipment.json";
+		if (file_exists($file)) {
+			$get_str = '';//获取道具日志文件内容	
+			clearstatcache();
+			$fs = fopen($file,'r');
+			while(!feof($fs)){
+					$get_str .= fgets($fs);
+				}
+			fclose($fs);
+			$str = json_decode($get_str,true);
+			$resource = '';
+			// foreach($str as $k => $value){
+				// $resource[$k]['ID']= $value['ID'];
+				// $resource[$k]['t_name']= $value['name'];
+				// $resource[$k]['t_level'] = $value['strengthenLevel'];
+			// }
+			if($gid) {
+				$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+				
+				if($list != '') {
+					$data = $list['equipsdata'];
+				}
+				$da = '';
+				$da = json_decode($data,true);
+				$da = $da['BagCellList'];
+				
+				$bag[0]['head'] = "空";//头部
+				$bag[0]['headlevel'] = 0;
+				$bag[0]['clothes'] = "空";
+				$bag[0]['clotheslevel'] = 0;
+				$bag[0]['belt'] = "空";
+				$bag[0]['beltlevel'] = 0;
+				$bag[0]['necklace'] = "空";
+				$bag[0]['necklacelevel'] = 0;
+				$bag[0]['bracers'] = "空";
+				$bag[0]['bracerslevel'] = 0;
+				$bag[0]['ring'] = "空";//戒指1==8
+				$bag[0]['ringlevel'] = 0;
+				$bag[0]['arm'] = "空";
+				$bag[0]['armlevel'] = 0;
+				$bag[0]['shoes'] = "空";
+				$bag[0]['shoeslevel'] = 0;
+				
+				$bag[0]['necklace2'] = '空';//项链2==4
+				$bag[0]['necklace2level'] = 0;
+				$bag[0]['weaponsfashion'] = '空';//武器时装==5
+				$bag[0]['weaponsfashionlevel'] = 0;
+				$bag[0]['clothesfashion'] = '空';//衣服时装==7
+				$bag[0]['clothesfashionlevel'] = 0;
+				$bag[0]['ring2'] = '空';//戒指2==9
+				$bag[0]['ring2level'] = 0;
+				$bag[0]['trousers'] = '空';//裤子==11
+				$bag[0]['trouserslevel'] = 0;
+				
+				if(!empty($da)){
+					foreach($da as $key => $value){
+						
+						if($da[$key]['CellID'] == 4){	
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['necklace2'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['necklace2level'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 5){	
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['weaponsfashion'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['weaponsfashionlevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 7){	
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['clothesfashion'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['clothesfashionlevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 9){	
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['ring2'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['ring2level'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 11){
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['trousers'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['trouserslevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						
+						if($da[$key]['CellID'] == 0){	//头部
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['head'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['headlevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 1){	//衣服
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['clothes'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['clotheslevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 2){	//腰带
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['belt'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['beltlevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 3){	//项链
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['necklace'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['necklacelevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						
+						if($da[$key]['CellID'] == 12){	//护腕
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['bracers'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['bracerslevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 8){	//戒指
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['ring'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['ringlevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 10){	//鞋子
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['shoes'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['shoeslevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						if($da[$key]['CellID'] == 6){	//武器
+							if($value['Cell']['TemplateID'] = $str[$value['Cell']['TemplateID']]['ID']){
+								$bag[0]['arm'] = $str[$value['Cell']['TemplateID']]['name'];
+								$bag[0]['armlevel'] = $str[$value['Cell']['TemplateID']]['strengthenLevel'];
+							}
+						}
+						
+					}
+				}
+				
+			}
+			$result = array(
+						'bag' =>  $bag
+						//'tool' => $tool_map
+				);
+			echo json_encode($result);
+			exit;
+		}else{
+			echo "文件不存在";
+			exit;
+		}
+		
+	}
+	
+	/**
+	 * 获取仓库信息
+	 */
+	public function getdepotInfo() {
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$bag = array();
+		$tool_map = array();			//道具列表
+		
+		//fopen
+		
+		
+		if($gid) {
+			$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+			
+			$tool_list = $gameDb -> table('tools_detail') -> select();
+			if($list != '') {
+				$data = $list['storagedata'];
+				//$bag = $this->packdate($data);
+			}
+			$da = json_decode($data,true);
+			$da = $da['BagCellList'];
+			if(is_array($da)){
+				foreach($da as $key => $value){
+					$bag[$key] = $da[$key]['Cell'];
+					$bag[$key]['CellID'] = $da[$key]['CellID'];
+				}
+			}
+			if($tool_list != '') {
+				foreach($tool_list as $tool) {
+					$tool_map[$tool['t_code']] = $tool['t_name'];
+				}
+			}
+		}
+		$result = array(
+					'bag' =>  $bag,
+					'tool' => $tool_map
+			);
+		echo json_encode($result);
+		exit;
+		
+		
+	}
+	
+	/**
+	 * 获取星宿信息
+	 */
+	public function getstarsInfo() {
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$bag = array();
+		$tool_map = array();			//道具列表
+		
+		//fopen
+		
+		
+		if($gid) {
+			$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+			
+			$tool_list = $gameDb -> table('tools_detail') -> select();
+			
+			if($list != '') {
+				$data = $list['stardrom'];
+				//$bag = $this->packdate($data);
+			}
+			$da = json_decode($data,true);
+			$da = $da['StarLifeLevelList'];
+			if(is_array($da)){
+				$bag[0]['one'] = $da[0]['nLifeLevel'];
+				$bag[0]['two'] = $da[1]['nLifeLevel'];
+				$bag[0]['three'] = $da[2]['nLifeLevel'];
+				$bag[0]['four'] = $da[3]['nLifeLevel'];
+				$bag[0]['five'] = $da[4]['nLifeLevel'];
+				$bag[0]['six'] = $da[5]['nLifeLevel'];
+				$bag[0]['seven'] = $da[6]['nLifeLevel'];
+				$bag[0]['eight'] = $da[7]['nLifeLevel'];
+				$bag[0]['max'] =max($da[0]);
+			}
+			if($tool_list != '') {
+				foreach($tool_list as $tool) {
+					$tool_map[$tool['t_code']] = $tool['t_name'];
+				}
+			}
+		}
+		$result = array(
+					'bag' =>  $bag,
+					'tool' => $tool_map
+			);
+		echo json_encode($result);
+		exit;
+		
+		
+	}
+	
+	/**
+	 * 获取神兵信息
+	 */
+	public function getmagicInfo() {
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$bag = array();
+		$tool_map = array();			//道具列表
+		
+		if($gid) {
+			$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+			
+			$tool_list = $gameDb -> table('tools_detail') -> select();
+			
+			if($list != '') {
+				$data = $list['forevermapdata'];
+			}
+			$da = json_decode($data,true);
+			
+			foreach($da as $key =>$value){
+				if($value['k']== 43){
+					$bag[0]['slevel'] = $value['v'].'阶';
+				}
+				if($value['k'] == 58){
+					$bag[0]['ling'] = round($value['v'],2);
+				}
+				if($value['k'] == 45){
+					if($value['v'] == 1){
+						$bag[0]['mskill'] = '沉默效果';
+					}else if($value['v'] == 2){
+						$bag[0]['mskill'] = '定身效果';
+					}else if($value['v'] == 3){
+						$bag[0]['mskill'] = '击退效果';
+					}else if($value['v'] == 4){
+						$bag[0]['mskill'] = '连击效果';
+					}else if($value['v'] == 5){
+						$bag[0]['mskill'] = '晕眩效果';
+					}
+				}
+				if($value['k'] == 48){
+					$gaga = str_replace('=',':',$value['v']);
+					$gaga = str_replace('[','"',$gaga);
+					$gaga = str_replace(']','"',$gaga);
+					$gaga = str_replace(',}','}',$gaga);
+					$gaga = json_decode($gaga,true);
+					foreach($gaga as $item){
+						$tem = $item[1];
+						if($tem == 1201){
+							$bag[0]['one']=	round($item[2]/1600000 * 100 , 3).'%';
+						}else if($tem == 2201){
+							$bag[0]['two']=	round($item[2]/1600000 * 100 , 3).'%';
+						}else if($tem == 3201){
+							$bag[0]['three']=round($item[2]/1600000 * 100 , 3).'%';
+						}else if($tem == 4201){
+							$bag[0]['four']=round($item[2]/1600000 * 100 , 3).'%';
+						}else if($tem == 5201){
+							$bag[0]['five']=round($item[2]/1600000 * 100 , 3).'%';
+						}else if($tem == 6201){
+							$bag[0]['six']=	round($item[2]/1600000 * 100 , 3).'%';
+						}
+					}
+				}
+			}
+		}
+		// echo $bb;
+		$result = array(
+					'bag' =>  $bag,
+					'tool' => $tool_map
+			);
+		echo json_encode($result);
+		exit;
+		
+		
+	}
+	
+	/**
+	 * 获取国家属性
+	 */
+	public function getstrategyInfo() {
+		
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$bag = array();
+		$tool_map = array();			//道具列表
+		
+		//fopen
+		
+		
+		if($gid) {
+			$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+
+			
+			if($list != '') {
+				$data = $list['forevermapdata'];
+			}
+			$da = json_decode($data,true);
+			$bag[0] = array('sm'=>0,'mz'=>0,'sb'=>0,'bj'=>0,'jr'=>0);
+			foreach($da as $key => $value){
+				//国家谋略生命
+				if($value['k'] == 151){
+					$bag[0]['sm'] = $value['v'];
+				}
+				//国家谋略命中
+				if($value['k'] == 152){
+					$bag[0]['mz'] = $value['v'];
+				}
+				//国家谋略闪避
+				if($value['k'] == 153){
+					$bag[0]['sb'] = $value['v'];
+				}
+				//国家谋略暴击
+				if($value['k'] == 154){
+					$bag[0]['bj'] = $value['v'];
+				}
+				//国家谋略坚韧
+				if($value['k'] == 155){
+					$bag[0]['jr'] = $value['v'];
+				}
+			}
+			
+		}
+		$result = array(
+					'bag' =>  $bag
+			);
+		echo json_encode($result);
+		exit;
+		
+	}
+	
+	/**
+	 * 获取战斗属性
+	 */
+	public function getbattleInfo() {
+		
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$bag = array();
+		$tool_map = array();			//道具列表
+		
+		//fopen
+		
+		
+		if($gid) {
+			$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+			
+			$tool_list = $gameDb -> table('tools_detail') -> select();
+			
+			if($list != '') {
+				$data = $list['seconddata'];
+				//$bag = $this->packdate($data);
+			}
+			$da = json_decode($data,true);
+			//$da = $da['StarLifeLevelList'];
+			if(is_array($da)){
+				$bag[0]['BattlePower'] = $da['BattlePower'];
+				$bag[0]['HP'] = $da['MaxHP'];
+				$bag[0]['MP'] = $da['MaxMP'];
+				$bag[0]['PhyAttack'] = $da['PhyAttack'];
+				$bag[0]['PhyDefense'] = $da['PhyDefense'];
+				$bag[0]['MagicDefense'] = $da['MagicDefense'];
+				$bag[0]['MagicAttack'] = $da['MagicAttack'];
+				$bag[0]['Power'] = $da['Power'];
+				$bag[0]['Nimble'] = $da['Nimble'];
+				$bag[0]['Physical'] = $da['Physical'];
+				$bag[0]['Intelligence'] = $da['Intelligence'];
+				$bag[0]['Spirit'] = $da['Spirit'];
+				$bag[0]['Hit'] = $da['Hit'];
+				$bag[0]['Dodge'] = $da['Dodge'];
+				$bag[0]['Cruel'] = $da['Cruel'];
+				$bag[0]['GodWakan'] = $da['GodWakan'];
+				$bag[0]['Tenacity'] = $da['DeCruel'];
+				$bag[0]['Minus'] = $da['ReHurt'];
+			}
+			
+			if($tool_list != '') {
+				foreach($tool_list as $tool) {
+					$tool_map[$tool['t_code']] = $tool['t_name'];
+				}
+			}
+		}
+		$result = array(
+					'bag' =>  $bag,
+					'tool' => $tool_map
+			);
+		echo json_encode($result);
+		exit;
+		
+		
+	}
+	
+	/**
+	 * 获取武将属性
+	 */
+	public function getpetInfo() {
+		
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		list($ip, $id, $sid) = autoConfig::getConfig($this->ip);
+		$gameDb = D('game'.$id);
+		
+		$gid = get_var_value('gid');	//玩家id
+		$bag = array();
+		$tool_map = array();			//道具列表
+		
+		//fopen
+		// $skfile = TPATH."/zs/skill.json";
+		$skfile = ITEM."/skill.json";
+		if (file_exists($skfile)) {
+			$get_str = '';//获取道具日志文件内容	
+			clearstatcache();
+			$fs = fopen($skfile,'r');
+			while(!feof($fs)){
+					$get_str .= fgets($fs);
+				}
+			fclose($fs);
+			$skill_json = json_decode($get_str,true);
+			
+		}
+		//print_R($skill_json);
+		$petfile = ITEM."/pet.json";
+		if (file_exists($petfile)) {
+			$get_str = '';//获取道具日志文件内容	
+			clearstatcache();
+			$fs = fopen($petfile,'r');
+			while(!feof($fs)){
+					$get_str .= fgets($fs);
+				}
+			fclose($fs);
+			$pet_json = json_decode($get_str,true);
+			
+		}
+		$bookfile = ITEM."/PetBook.json";
+		if (file_exists($bookfile)) {
+			$get_str = '';//获取道具日志文件内容	
+			clearstatcache();
+			$fs = fopen($bookfile,'r');
+			while(!feof($fs)){
+					$get_str .= fgets($fs);
+				}
+			fclose($fs);
+			$book_json = json_decode($get_str,true);
+			
+		}
+		foreach($book_json as $key => $value){
+			foreach($value['LevelData'] as $k => $v){
+				$book[$key][$k]['Upgradealue'] = $v['Upgradealue'];
+				$book[$key][$k]['level']=$v['Level'];
+			}
+			$book[$key]['BookName'] = $value['BookName'];
+		}
+		$peteq = ITEM."/PetEquip.json";
+		if (file_exists($peteq)) {
+			$get_str = '';//获取道具日志文件内容	
+			clearstatcache();
+			$fs = fopen($peteq,'r');
+			while(!feof($fs)){
+					$get_str .= fgets($fs);
+				}
+			fclose($fs);
+			$peteq_json = json_decode($get_str,true);
+			
+		}
+		
+		if($gid) {
+			$list = $point -> table('player_table') -> where('guid=' . $gid) -> find();
+			
+			if($list != '') {
+				$data = $list['rolepet'];
+			}
+			$da = json_decode($data,true);
+			$pet = $da['PetList'];
+			$book = $da['PetBooks'];
+			//print_R($book);
+			if(!empty($pet)){
+				foreach($pet as $key =>$value){
+					$bag[$key]=$value['SecondData'];
+					$bag[$key]['NO'] = $key +1;
+					if($value['templateid'] == $pet_json[$value['templateid']]['iconId']){
+						$bag[$key]['templateid'] = $pet_json[$value['templateid']]['name'];
+					}
+					$bag[$key]['Level']=$value['Level'];
+					$bag[$key]['TrunCount']=$value['TrunCount'];
+					
+					$bag[$key]['gif2'] = '无';
+					$bag[$key]['gif1'] = '无';
+					if(!empty($value['PetGiftSkillList']['v0']['nSkillID'])){
+						if($value['PetGiftSkillList']['v0']['nSkillID'] = $skill_json[$value['PetGiftSkillList']['v0']['nSkillID']]['SkilltemplateID']){
+							$bag[$key]['gif1'] = $skill_json[$value['PetGiftSkillList']['v0']['nSkillID']]['SkillName'];
+							$bag[$key]['gif1level'] = $skill_json[$value['PetGiftSkillList']['v0']['nSkillID']]['SkillLevel'];
+						}
+					}
+					if(!empty($value['PetGiftSkillList']['v1']['nSkillID'])){
+						if($value['PetGiftSkillList']['v1']['nSkillID'] = $skill_json[$value['PetGiftSkillList']['v1']['nSkillID']]['SkilltemplateID']){
+							$bag[$key]['gif2'] = $skill_json[$value['PetGiftSkillList']['v1']['nSkillID']]['SkillName'];
+							$bag[$key]['gif2level'] = $skill_json[$value['PetGiftSkillList']['v1']['nSkillID']]['SkillLevel'];
+						}
+					}
+					// $bag[$key]['gif1']=$value['PetGiftSkillList']['v0']['nSkillID'];
+					// $bag[$key]['gif2']=$value['PetGiftSkillList']['v1']['nSkillID'];
+					if(!empty($value['BattleData'][0]['SkillTemplateId'])){
+						$bag[$key]['bskill1']=$value['BattleData'][0]['SkillTemplateId'];
+					}else{
+						$bag[$key]['bskill1'] =0;
+					}
+					if(!empty($value['BattleData'][0]['SkillTemplateId'])){
+						$bag[$key]['bskill2']=$value['BattleData'][1]['SkillTemplateId'];
+					}else{
+						$bag[$key]['bskill2'] =0;
+					}
+					if(!empty($value['BattleData'][0]['SkillTemplateId'])){
+						$bag[$key]['bskill3']=$value['BattleData'][2]['SkillTemplateId'];
+					}else{
+						$bag[$key]['bskill3'] =0;
+					}
+					
+					$bag[$key]['RoleBattleAttributeValue']=0;
+					// foreach($book as $k =>$v){
+						// if($v['nBookID'] != 0 && $v['nBookID'] = $book_json[$v['nBookID']-10000]['BookID'] && $v['nLevel'] = $book_json[$v['nBookID']-10000]['LevelData'][$key]['Level']){
+							// $bag[$key]['points'] =  $book_json[$v['nBookID']-10000]['LevelData'][$key]['Upgradealue'];
+							// $bag[$key]['book'] = $book_json[$v['nBookID']-10000]['BookName'];
+							// $bag[$key]['nLevel']=$v['nLevel'];
+						// }else{
+							// $bag[$key]['points'] = 0;
+							// $bag[$key]['book'] =0;
+							// $bag[$key]['nLevel'] = 0;
+						// }
+					// }
+					
+					if(!empty($value['PetEquipList']['v0'])){
+						if($num = $value['PetEquipList']['v0']){
+							$bag[$key]['ypei'] = $peteq_json[$num]['EquipName'];
+							$bag[$key]['ypeiL'] = $peteq_json[$num]['equiplevel'];
+						}
+					}if(!empty($value['PetEquipList']['v1'])){
+						if($num = $value['PetEquipList']['v1']){
+							$bag[$key]['mzhu'] = $peteq_json[$num]['EquipName'];
+							$bag[$key]['mzhuL'] = $peteq_json[$num]['equiplevel'];
+						}
+					}if(!empty($value['PetEquipList']['v2'])){
+						if($num = $value['PetEquipList']['v2']){
+							$bag[$key]['hfu'] = $peteq_json[$num]['EquipName'];
+							$bag[$key]['hfuL'] = $peteq_json[$num]['equiplevel'];
+						}
+					}if(!empty($value['PetEquipList']['v3'])){
+						if($num = $value['PetEquipList']['v3']){
+							$bag[$key]['lpai'] = $peteq_json[$num]['EquipName'];
+							$bag[$key]['lpaiL'] = $peteq_json[$num]['equiplevel'];
+						}
+					}if(!empty($value['PetEquipList']['v4'])){
+						if($num = $value['PetEquipList']['v4']){
+							$bag[$key]['bjing'] = $peteq_json[$num]['EquipName'];
+							$bag[$key]['bjingL'] = $peteq_json[$num]['equiplevel'];
+						}
+					}
+					if(!empty($value['PetGrow']['v0'])){
+						$bag[$key]['Grow']=$value['PetGrow']['v0']['growlevel'];
+						if(!empty($value['PetGrow']['v1'])){
+							$bag[$key]['Grow'] +=$value['PetGrow']['v1']['growlevel'];
+						}
+						if(!empty($value['PetGrow']['v2'])){
+							$bag[$key]['Grow'] +=$value['PetGrow']['v2']['growlevel'];
+						}
+						if(!empty($value['PetGrow']['v3'])){
+							$bag[$key]['Grow'] +=$value['PetGrow']['v3']['growlevel'];
+						}
+						if(!empty($value['PetGrow']['v4'])){
+							$bag[$key]['Grow'] +=$value['PetGrow']['v4']['growlevel'];
+						}
+						if(!empty($value['PetGrow']['v5'])){
+							$bag[$key]['Grow'] +=$value['PetGrow']['v5']['growlevel'];
+						}
+						
+						$bag[$key]['Grow'] = round($bag[$key]['Grow']/6);
+					}
+					if(!empty($value['PetBookList']) && !empty($book_json[$key])){
+						if(!empty($value['PetBookList']['v0'])){
+							$bookid = $value['PetBookList']['v0']['nBookID'];
+							$bag[$key]['b_oneL'] = $value['PetBookList']['v0']['nLevel'];
+							
+							$bag[$key]['bspf'] = pow(2,$value['PetBookList']['v0']['nLevel']);
+							if($value['PetBookList']['v0']['nBookID'] == $book_json[$key]['BookID']){
+								$bag[$key]['b_one'] = $book_json[$key]['BookName'];
+								if($value['PetBookList']['v0']['nLevel'] == $book_json[$key]['LevelData']['Level']){
+									$bag[$key]['one_pf'] = $book_json[$key]['LevelData']['Attributevalue'];
+								}
+							}
+						}
+						if(!empty($value['PetBookList']['v1']['nLevel'])){
+						if(!empty($value['PetBookList']['v1'])){
+								$bookid = $value['PetBookList']['v1']['nBookID'];
+								$bag[$key]['b_twoL'] = $value['PetBookList']['v1']['nLevel'];
+								if($value['PetBookList']['v1']['nBookID'] == $book_json[$key]['BookID']){
+									$bag[$key]['b_two'] = $book_json[$key]['BookName'];
+									if($value['PetBookList']['v1']['nLevel'] == $book_json[$key]['LevelData']['Level']){
+										$bag[$key]['two_pf'] = $book_json[$key]['LevelData']['Attributevalue'];
+									}
+								}
+							}
+						}
+						if(!empty($value['PetBookList']['v2']['nLevel'])){
+							if(!empty($value['PetBookList']['v2'])){
+								$bookid = $value['PetBookList']['v2']['nBookID'];
+								$bag[$key]['b_threeL'] = $value['PetBookList']['v2']['nLevel'];
+								if($value['PetBookList']['v2']['nBookID'] == $book_json[$key]['BookID']){
+									$bag[$key]['b_three'] = $book_json[$key]['BookName'];
+									if($value['PetBookList']['v2']['nLevel'] == $book_json[$key]['LevelData']['Level']){
+										$bag[$key]['three_pf'] = $book_json[$key]['LevelData']['Attributevalue'];
+									}
+								}
+							}
+						}
+						if(!empty($value['PetBookList']['v3']['nLevel'])){
+							if(!empty($value['PetBookList']['v3'])){
+								$bookid = $value['PetBookList']['v3']['nBookID'];
+								$bag[$key]['b_fourL'] = $value['PetBookList']['v3']['nLevel'];
+								if($value['PetBookList']['v3']['nBookID'] == $book_json[$key]['BookID']){
+									$bag[$key]['b_four'] = $book_json[$key]['BookName'];
+									if($value['PetBookList']['v3']['nLevel'] == $book_json[$key]['LevelData']['Level']){
+										$bag[$key]['four_pf'] = $book_json[$key]['LevelData']['Attributevalue'];
+									}
+								}
+						}
+						}
+						if(!empty($value['PetBookList']['v4']['nLevel'])){
+							if(!empty($value['PetBookList']['v4'])){
+								$bookid = $value['PetBookList']['v4']['nBookID'];
+								$bag[$key]['b_fiveL'] = $value['PetBookList']['v4']['nLevel'];
+								if($value['PetBookList']['v4']['nBookID'] == $book_json[$key]['BookID']){
+									$bag[$key]['b_five'] = $book_json[$key]['BookName'];
+									if($value['PetBookList']['v4']['nLevel'] == $book_json[$key]['LevelData']['Level']){
+										$bag[$key]['five_pf'] = $book_json[$key]['LevelData']['Attributevalue'];
+									}
+								}
+							}
+						}
+						if(!empty($value['PetBookList']['v5']['nLevel'])){
+							if(!empty($value['PetBookList']['v5'])){
+								$bookid = $value['PetBookList']['v5']['nBookID'];
+								$bag[$key]['b_sixL'] = $value['PetBookList']['v5']['nLevel'];
+								if($value['PetBookList']['v5']['nBookID'] == $book_json[$key]['BookID']){
+									$bag[$key]['b_six'] = $book_json[$key]['BookName'];
+									if($value['PetBookList']['v5']['nLevel'] == $book_json[$key]['LevelData']['Level']){
+										$bag[$key]['six_pf'] = $book_json[$key]['LevelData']['Attributevalue'];
+									}
+								}
+							}
+						}
+						
+					}
+				}
+			}else{
+				$bag = array();
+			}
+			//print_R($bag);
+			
+			// if($tool_list != '') {
+				// foreach($tool_list as $tool) {
+					// $tool_map[$tool['t_code']] = $tool['t_name'];
+				// }
+			// }
+		}
+		$result = array(
+					'bag' =>  $bag
+					//'tool' => $tool_map
+			);
+		echo json_encode($result);
+		exit;
+		
+		
+	}
+	
+	/**
+	 * 解析背包二进制数据
+	 */
+	public function packdate($data){
+		if(strlen($data) <= 0){
+			return false;
+		}
+		$A = array();
+		$T = unpack("v2", substr( $data, 0, 4 ) );		
+		$Sum = $T[2]; //总物品数
+		$offset = 4;
+		for( $i = 0; $i < $Sum; $i++ ){
+			$array = unpack("v", substr( $data, $offset, strlen($data) -  $offset) );  
+			$offset += 2;
+			$A[$i]['CellId'] = $array[1];
+			
+			$array = unpack("I3", substr( $data, $offset, strlen($data) -  $offset)  );  
+			$offset += 12;
+			$A[$i]['ItemId'] = $array[2];
+			$A[$i]['ItemCount'] = $array[3];
+			
+			$array = unpack("c", substr( $data, $offset, strlen($data) -  $offset)  ); 
+			$offset += 1;
+			$A[$i]['bind'] = $array[1];
+			
+			$array = unpack("c", substr( $data, $offset, strlen($data) -  $offset)  );  
+			$offset += 1;
+			$offset += 8 * $array[1];
+			
+			$array = unpack("c", substr( $data, $offset, strlen($data) -  $offset)  );  
+			$offset += 1;
+			$offset += 8 * $array[1];
+		}
+		return $A;
+	}	
+	
+}

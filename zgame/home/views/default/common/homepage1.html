@@ -1,7 +1,7 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-	<title>本地测试后台</title>
+	<title>测试服后台</title>
 	<meta http-equiv=Content-Type content="text/html;charset=utf-8">
 	<link type="image/x-icon" rel="shortcut icon" href="<{$root}>/favicon.ico" />
 	<link href="<{$res}>/css/skin.css" rel="stylesheet" type="text/css">
@@ -95,7 +95,7 @@
 <script type="text/javascript"> 
 var createTag = function(){
 	var a_h = 130;
-	var w_h = window.screen.availHeight;
+	var w_h = $(window).height();
 	var lidom = $(".sidebar").find("li").first();
 	var id = lidom.attr("id");
 	
@@ -112,6 +112,10 @@ var createTag = function(){
 	
 	//$("#tabs").append(tabHtml);
 	$("#mainframe").append(iframeHtml);
+}
+window.onresize = function(){
+	var w_h = $(window).height();
+	$(".iframe").attr('height',parseInt(w_h-130));
 }
 $(function() {
 	//初始化当前默认第一个标签内容

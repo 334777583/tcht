@@ -41,8 +41,8 @@ class operation{
 	 * 获取数据
 	 */
 	public function getHistoryLog(){
-		$this->startDate = $this->startDate.' 00:00:00';
-		$this->endDate = $this->endDate.' 23:59:59';
+		$this->startDate = $this->startDate;
+		$this->endDate = date("Y-m-d",strtotime($this->endDate)+24*60*60);
 		if($this->ip&&$this->codeValue) {
 			global $t_conf;
 			$srever = 's'.$this->ip;
@@ -127,7 +127,7 @@ class operation{
 					//$moneylog[$k]['remark'] = $v['From'];
 				}
 			}
-			
+			sort($moneylog);
 			echo json_encode(array(
 					'result' => $moneylog,
 					'user'=>$user

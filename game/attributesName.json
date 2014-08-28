@@ -1,0 +1,342 @@
+{
+    "100": {
+        "code": 100,
+        "cName": "hp",
+        "sName": "生命"
+    },
+    "101": {
+        "code": 101,
+        "cName": "maxHp",
+        "sName": "生命上限"
+    },
+    "120": {
+        "code": 120,
+        "cName": "mp",
+        "sName": "法力"
+    },
+    "121": {
+        "code": 121,
+        "cName": "maxMp",
+        "sName": "法力上限"
+    },
+    "130": {
+        "code": 130,
+        "cName": "physicalDefence",
+        "sName": "物理防御"
+    },
+    "140": {
+        "code": 140,
+        "cName": "magicDefence",
+        "sName": "法术防御"
+    },
+    "150": {
+        "code": 150,
+        "cName": "PhyAttack",
+        "sName": "物理攻击"
+    },
+    "160": {
+        "code": 160,
+        "cName": "MagicAttack",
+        "sName": "法术攻击"
+    },
+    "170": {
+        "code": 170,
+        "cName": "Hit",
+        "sName": "命中"
+    },
+    "180": {
+        "code": 180,
+        "cName": "evade",
+        "sName": "闪避"
+    },
+    "190": {
+        "code": 190,
+        "cName": "Cruel",
+        "sName": "暴击"
+    },
+    "200": {
+        "code": 200,
+        "cName": "DeCruel",
+        "sName": "坚韧"
+    },
+    "210": {
+        "code": 220,
+        "cName": "RecoverHP",
+        "sName": "生命恢复"
+    },
+    "220": {
+        "code": 220,
+        "cName": "RecoverMP",
+        "sName": "法力恢复"
+    },
+    "290": {
+        "code": 290,
+        "cName": "MoveSpeed",
+        "sName": "移动速度"
+    },
+    "330": {
+        "code": 330,
+        "cName": "Exp",
+        "sName": "经验值"
+    },
+    "335": {
+        "code": 335,
+        "cName": "Strategy",
+        "sName": "韬略值"
+    },
+    "340": {
+        "code": 340,
+        "cName": "Level",
+        "sName": "等级"
+    },
+    "470": {
+        "code": 470,
+        "cName": "Power",
+        "sName": "力量"
+    },
+    "480": {
+        "code": 480,
+        "cName": "Nimble",
+        "sName": "敏捷"
+    },
+    "490": {
+        "code": 490,
+        "cName": "physical",
+        "sName": "体质"
+    },
+    "500": {
+        "code": 500,
+        "cName": "Intelligence",
+        "sName": "智力"
+    },
+    "510": {
+        "code": 510,
+        "cName": "Spirit",
+        "sName": "精神"
+    },
+    "550": {
+        "code": 550,
+        "cName": "sprite",
+        "sName": "灵力"
+    },
+    "580": {
+        "code": 580,
+        "cName": "HPBagReValue",
+        "sName": "生命药包回复值"
+    },
+    "590": {
+        "code": 590,
+        "cName": "MPBagReValue",
+        "sName": "法力药包回复值"
+    },
+    "1000": {
+        "code": 1000,
+        "cName": "1000",
+        "sName": "生命"
+    },
+    "1010": {
+        "code": 1010,
+        "cName": "1010",
+        "sName": "生命上限比例"
+    },
+    "1020": {
+        "code": 1020,
+        "cName": "1020",
+        "sName": "法力"
+    },
+    "1030": {
+        "code": 1030,
+        "cName": "1030",
+        "sName": "法力上限比例"
+    },
+    "1040": {
+        "code": 1040,
+        "cName": "PhyDefense",
+        "sName": "物理防御"
+    },
+    "1050": {
+        "code": 1050,
+        "cName": "1050",
+        "sName": "物理防御比例"
+    },
+    "1060": {
+        "code": 1060,
+        "cName": "MagicDefense",
+        "sName": "法术防御"
+    },
+    "1070": {
+        "code": 1070,
+        "cName": "1070",
+        "sName": "法术防御比例"
+    },
+    "1080": {
+        "code": 1080,
+        "cName": "1080",
+        "sName": "物理攻击"
+    },
+    "1090": {
+        "code": 1090,
+        "cName": "1090",
+        "sName": "物理攻击比例"
+    },
+    "1100": {
+        "code": 1100,
+        "cName": "1100",
+        "sName": "法术攻击"
+    },
+    "1110": {
+        "code": 1110,
+        "cName": "1110",
+        "sName": "法术攻击比例"
+    },
+    "1120": {
+        "code": 1120,
+        "cName": "1120",
+        "sName": "命中"
+    },
+    "1130": {
+        "code": 1130,
+        "cName": "1130",
+        "sName": "改变命中比例"
+    },
+    "1140": {
+        "code": 1140,
+        "cName": "1140",
+        "sName": "闪避"
+    },
+    "1150": {
+        "code": 1150,
+        "cName": "1150",
+        "sName": "改变闪避比例"
+    },
+    "1160": {
+        "code": 1160,
+        "cName": "1160",
+        "sName": "暴击"
+    },
+    "1170": {
+        "code": 1170,
+        "cName": "1170",
+        "sName": "改变暴击比例"
+    },
+    "1180": {
+        "code": 1180,
+        "cName": "1180",
+        "sName": "坚韧"
+    },
+    "1190": {
+        "code": 1190,
+        "cName": "1190",
+        "sName": "改变坚韧比例"
+    },
+    "1200": {
+        "code": 1200,
+        "cName": "1200",
+        "sName": "生命恢复速度"
+    },
+    "1210": {
+        "code": 1210,
+        "cName": "1210",
+        "sName": "改变生命恢复速度比例"
+    },
+    "1220": {
+        "code": 1220,
+        "cName": "1220",
+        "sName": "法力恢复速度"
+    },
+    "1230": {
+        "code": 1230,
+        "cName": "1230",
+        "sName": "改变法力恢复速度比例"
+    },
+    "1240": {
+        "code": 1240,
+        "cName": "1240",
+        "sName": "减少法力消耗比例"
+    },
+    "1250": {
+        "code": 1250,
+        "cName": "1250",
+        "sName": "改变闪避几率"
+    },
+    "1260": {
+        "code": 1260,
+        "cName": "1260",
+        "sName": "改变暴击几率"
+    },
+    "1270": {
+        "code": 1270,
+        "cName": "1270",
+        "sName": "改变被暴击几率"
+    },
+    "1280": {
+        "code": 1280,
+        "cName": "1280",
+        "sName": "免伤比例"
+    },
+    "1290": {
+        "code": 1290,
+        "cName": "1290",
+        "sName": "免伤"
+    },
+    "1300": {
+        "code": 1300,
+        "cName": "1300",
+        "sName": "移动速度"
+    },
+    "1330": {
+        "code": 1330,
+        "cName": "1330",
+        "sName": "坐骑移动速度"
+    },
+    "1350": {
+        "code": 1350,
+        "cName": "1350",
+        "sName": "改变暴击伤害比例"
+    },
+    "1360": {
+        "code": 1360,
+        "cName": "1360",
+        "sName": "改变被暴击伤害比例"
+    },
+    "1370": {
+        "code": 1370,
+        "cName": "1370",
+        "sName": "经验值加成比例"
+    },
+    "1380": {
+        "code": 1380,
+        "cName": "1380",
+        "sName": "力量"
+    },
+    "1390": {
+        "code": 1390,
+        "cName": "1390",
+        "sName": "敏捷"
+    },
+    "1400": {
+        "code": 1400,
+        "cName": "1400",
+        "sName": "体质"
+    },
+    "1410": {
+        "code": 1410,
+        "cName": "1410",
+        "sName": "智力"
+    },
+    "1420": {
+        "code": 1420,
+        "cName": "1420",
+        "sName": "精神"
+    },
+    "1435": {
+        "code": 1435,
+        "cName": "BaseAptitude",
+        "sName": "武将资质"
+    },
+    "1440": {
+        "code": 1440,
+        "cName": "BaseTrunLifeRatio",
+        "sName": "转生系数"
+    }
+}

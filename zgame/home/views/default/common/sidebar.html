@@ -103,6 +103,14 @@
 					<li id="sin"><a href="<{$app}>/operation/show"  onclick="return false;">操作日志</a></li>
 				<{/if}>
 				
+				<{if  in_array("00300900",$user.code)}>
+					<li id="sin"><a href="<{$app}>/equipmentOperation/show"  onclick="return false;">玩家装备操作查询</a></li>
+				<{/if}>
+				
+				<{if  in_array("00301000",$user.code)}>
+					<li id="sin"><a href="<{$app}>/killboss/show"  onclick="return false;">玩家击杀BOSS查询</a></li>
+				<{/if}>
+				
 			</ul>
 		</div>
 	<{/if}>

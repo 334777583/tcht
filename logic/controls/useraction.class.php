@@ -494,8 +494,11 @@ class useraction{
 	 * 全部
 	 */
 	public function getall(){
-		$point = D('game'.$this->ip);
-		$list = $point -> table('')-> where(array(''=>$this->startdate,''=>$this->enddate)) ->select();
+		global $t_conf;
+		$sever = 's'.$this->ip;
+		$obj = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
+		$sql = "";
+		$list = $obj ->fquery($sql);
 		echo json_encode(array(
 						''=>$this->startdate,
 						''=>$this->enddate,

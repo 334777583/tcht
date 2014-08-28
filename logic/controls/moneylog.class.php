@@ -117,6 +117,7 @@ class moneylog{
 					//$moneylog[$k]['remark'] = $v['From'];
 				}
 			}
+			sort($moneylog);
 			echo json_encode(array(
 					'result' => $moneylog,
 					'user'=>$user
