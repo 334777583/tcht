@@ -1,12 +1,12 @@
 <?php
 /**
-   * FileName		: equipmentOperation.class.php
+   * FileName		: equipmentoperation.class.php
    * Description	: 玩家装备操作查询
    * Author	    : zwy
    * Date			: 2014-8-8
    * Version		: 1.00
    */
-class equipmentOperation{
+class equipmentoperation{
 	/**
 	 * 登录用户信息
 	 */
@@ -32,7 +32,7 @@ class equipmentOperation{
 		$ipList = parent::getIpList();
 		$this->assign("ipList",$ipList);
 		$this->assign('startdate',date('Y-m-d'));
-		$this->display("user/equipmentOperation");
+		$this->display("user/equipmentoperation");
 	}
 	
 	

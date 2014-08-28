@@ -1,11 +1,11 @@
 <?php
 /**
-   * FileName		: equipmentOperation.class.php
+   * FileName		: equipmentoperation.class.php
    * Description	: 玩家装备操作查询
    * Author	    : zwy
    * Date			: 2014-8-8
    */
-class equipmentOperation{
+class equipmentoperation{
 	private $user;
 	private $ip;
 	private $startDate;
@@ -59,6 +59,10 @@ class equipmentOperation{
 				$user = $Server->fquery("SELECT GUID,RoleName from player_table where RoleName='{$this->codeValue}'");
 			}elseif ($this->code==3) {
 				$user = $Server->fquery("SELECT GUID,RoleName from player_table where GUID=$this->codeValue");
+			}
+			
+			if (empty($user)){
+				echo json_encode('用户不存在');exit;
 			}
 			
 			$obj = D("game".$this->ip);
@@ -182,12 +186,25 @@ class equipmentOperation{
 	//查看当天
 	public function getCurrentLog(){
 		if ($this->ip&&$this->codeValue){
+			global $t_conf;
+			$srever = 's'.$this->ip;
+			$Server = F($t_conf[$srever]['db'], $t_conf[$srever]['ip'], $t_conf[$srever]['user'], $t_conf[$srever]['password'], $t_conf[$srever]['port']);
+			if ($this->code==2){
+				$user = $Server->fquery("SELECT GUID,RoleName from player_table where RoleName='{$this->codeValue}'");
+			}elseif ($this->code==3) {
+				$user = $Server->fquery("SELECT GUID,RoleName from player_table where GUID=$this->codeValue");
+			}
+				
+			if (empty($user)){
+				echo json_encode('用户不存在');exit;
+			}
+			
 			$obj = D('game_base');
 			$db = $obj -> table('gamedb') -> where("g_flag = 1 and g_id=$this->ip") -> find();
 			$path = LPATH . $db['g_ip'] . '/' . date('Y-m-d') . '/';	//日志文件所在目录路径
 			$filePath = $path.'log-type-19.log';
 			//$filePath = LPATH.'192.168.0.64/2014-07-29/log-type-19.log';
-			$data = $this->getFileDate($filePath, $this->code, $this->codeValue,$this->sub_type);
+			$data = $this->getFileDate($filePath, $user[0]['GUID'],$this->sub_type);
 			if (empty($data)){
 				echo 1;exit;
 			}
@@ -198,7 +215,7 @@ class equipmentOperation{
 			foreach ($data as $k=>$v){
 				$list[$k]['date'] = date("Y-m-d H:i:s",$v['time']);
 				$list[$k]['player_id'] = $v['player_id'];
-				$list[$k]['player_name'] = $v['player_name'];
+				$list[$k]['player_name'] = $user[0]['RoleName'];
 				$list[$k]['sub_type'] = $this->subtype[$v['sub_type']];
 				$list[$k]['equip_name'] = $goods[$v['equip_id']]['name'];
 				if ($v['pos_type']==1){
@@ -299,7 +316,7 @@ class equipmentOperation{
 	 * @param unknown $subtype		搜索类型（铜币、元宝。。。）
 	 * @return multitype:mixed |multitype:string
 	 */
-	public function getFileDate($path,$code,$playid,$subtype){
+	public function getFileDate($path,$playid,$subtype){
 		if (file_exists($path)) {
 			$fp = fopen($path, "r");							//读取日志文件
 			$log_data = array();								//保存日志分析信息
@@ -310,9 +327,7 @@ class equipmentOperation{
 					$INFO  = str_replace("'", '"', $INFO );
 					$arr = json_decode($INFO , true);
 					if(is_array($arr)&&$arr['sub_type']==$subtype) {
-						if ($code==2&&$arr['player_name']==$playid){
-							$log_data[] = $arr;
-						}elseif ($code==3&&$arr['player_id']==$playid) {
+						if ($arr['player_id']==$playid) {
 							$log_data[] = $arr;
 						}
 					}

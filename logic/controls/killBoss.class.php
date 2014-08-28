@@ -1,11 +1,11 @@
 <?php
 /**
-   * FileName		: killBoss.class.php
+   * FileName		: killboss.class.php
    * Description	: 玩家击杀boss查询
    * Author	    : zwy
    * Date			: 2014-8-8
    */
-class killBoss{
+class killboss{
 	private $user;
 	private $ip;
 	private $startDate;
@@ -51,6 +51,10 @@ class killBoss{
 				$user = $Server->fquery("SELECT GUID,RoleName from player_table where GUID=$this->codeValue");
 			}
 			
+			if (empty($user)){
+				echo json_encode('用户不存在');exit;
+			}
+			
 			$obj = D("game".$this->ip);
 			$where = "date between '{$this->startDate}' and '{$this->endDate}' ";
 			$where .= " and playid=".$user[0]['GUID'];
@@ -64,8 +68,10 @@ class killBoss{
 			-> limit(intval(($this->curPage-1)*$this->pageSize),intval($this->pageSize))
 			->order("id desc")
 			->select();
+			
 			$bossPath = ITEM."monster.json";//物品配置jsoin文件路径
 			$boss = json_decode(file_get_contents($bossPath),true);
+			
 			foreach ($list as $k=>$v){
 				$list[$k]['playername'] = $user[0]['RoleName'];
 				$list[$k]['bossname'] = $boss[$v['bossid']]['MonsterName'];
@@ -86,14 +92,36 @@ class killBoss{
 	//查看当天
 	public function getCurrentLog(){
 		if ($this->ip&&$this->codeValue){
+			global $t_conf;
+			$srever = 's'.$this->ip;
+			$Server = F($t_conf[$srever]['db'], $t_conf[$srever]['ip'], $t_conf[$srever]['user'], $t_conf[$srever]['password'], $t_conf[$srever]['port']);
+			if ($this->code==2){
+				$user = $Server->fquery("SELECT GUID,RoleName from player_table where RoleName='{$this->codeValue}'");
+			}elseif ($this->code==3) {
+				$user = $Server->fquery("SELECT GUID,RoleName from player_table where GUID=$this->codeValue");
+			}
+			
+			if (empty($user)){
+				echo json_encode('用户不存在');exit;
+			}
+			
 			$obj = D('game_base');
 			$db = $obj -> table('gamedb') -> where("g_flag = 1 and g_id=$this->ip") -> find();
 			$path = LPATH . $db['g_ip'] . '/' . date('Y-m-d') . '/';	//日志文件所在目录路径
 			$filePath = $path.'log-type-20.log';
 			//$filePath = LPATH.'192.168.0.64/2014-07-29/log-type-20.log';
-			$data = $this->getFileDate($filePath, $this->code, $this->codeValue);
+			$data = $this->getFileDate($filePath, $user[0]['GUID']);
 			if (empty($data)){
 				echo 1;exit;
+			}
+			
+			$bossPath = ITEM."monster.json";//物品配置jsoin文件路径
+			$boss = json_decode(file_get_contents($bossPath),true);
+			
+			foreach ($data as $k=>$v){
+				$data[$k]['date'] = date('Y-m-s H:i:s',$v['time']);
+				$data[$k]['playername'] = $user[0]['RoleName'];
+				$data[$k]['bossname'] = $boss[$v['bossid']]['MonsterName'];
 			}
 			
 			echo json_encode(array(
@@ -112,7 +140,7 @@ class killBoss{
 	 * @param unknown $subtype		搜索类型（铜币、元宝。。。）
 	 * @return multitype:mixed |multitype:string
 	 */
-	public function getFileDate($path,$code,$playid){
+	public function getFileDate($path,$playid){
 		if (file_exists($path)) {
 			$fp = fopen($path, "r");							//读取日志文件
 			$log_data = array();								//保存日志分析信息
@@ -123,9 +151,7 @@ class killBoss{
 					$INFO  = str_replace("'", '"', $INFO );
 					$arr = json_decode($INFO , true);
 					if(is_array($arr)) {
-						if ($code==2&&$arr['playername']==$playid){
-							$log_data[] = $arr;
-						}elseif ($code==3&&$arr['playid']==$playid) {
+						if ($arr['playid']==$playid) {
 							$log_data[] = $arr;
 						}
 					}
