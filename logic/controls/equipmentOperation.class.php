@@ -185,8 +185,8 @@ class equipmentOperation{
 			$obj = D('game_base');
 			$db = $obj -> table('gamedb') -> where("g_flag = 1 and g_id=$this->ip") -> find();
 			$path = LPATH . $db['g_ip'] . '/' . date('Y-m-d') . '/';	//日志文件所在目录路径
-// 			$filePath = $path.'log-type-19.log';
-			$filePath = LPATH.'192.168.0.64/2014-07-29/log-type-19.log';
+			$filePath = $path.'log-type-19.log';
+			//$filePath = LPATH.'192.168.0.64/2014-07-29/log-type-19.log';
 			$data = $this->getFileDate($filePath, $this->code, $this->codeValue,$this->sub_type);
 			if (empty($data)){
 				echo 1;exit;
