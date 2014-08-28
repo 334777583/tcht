@@ -289,6 +289,71 @@
 							}
 							$("#dtatr_body").html(tbody);
 							
+							//冻结并下线
+							$('.killPlayer').click(function(){
+								var roleid = $(this).attr('roleid');
+								var rolename = $(this).attr('rolename');
+								var ip = $("#sip").val();
+								var obj = $(this);
+								
+								$.post('<{$logicApp}>/gmchat/killPlayer',{roleid:roleid,rolename:rolename,ip:ip},function(data){
+									obj.parents('td').html(data.msg);
+								},'json');
+								
+							});
+							
+							
+							
+							//快捷禁言
+							$(".jybt").click(function(){
+								var id = $(this).attr('roleid');
+								var rolename = $(this).attr('rolename');
+								var ip = $("#sip").val();
+								//var stoptime = $("#stoptime").val();
+								//var reason = $("#reason").val();
+								var time = Date.parse(new Date());
+								$("#rname").html(rolename);
+								$("#jyform").dialog({
+									height: 300,
+									width: 500,
+									buttons: {
+										'确定' : function(){
+											$.ajax({
+												type  : "post",
+												url : "<{$logicApp}>/gmoperate/stoptalk",
+												data :
+												{
+													ip : ip,
+													rolename : rolename,
+													stoptime :$("#stoptime").val(),
+													reason :  $("#reason").val(),
+													time : time
+												},
+												dataType : 'json',
+												success : function(data){
+													if(typeof(data.error) != 'undefined')
+													{
+														if(data.error != '')
+														{
+															alert(data.error);
+														}
+													}else{
+														alert("禁言成功");
+														$("#jyform").dialog("close");
+													}
+												},
+												error : function(){
+													alert('error');
+												}
+											})
+										},
+										'取消' : function(){
+											$(this).dialog("close");
+										}
+									}
+								})
+							});
+							
 						}
 						else {
 							$("#dtatr_body").html("<tr><td colspan='6'>没有数据！</td></tr>");
@@ -302,18 +367,7 @@
 				});
 		}
 		
-		//冻结并下线
-		$('.killPlayer').click(function(){
-			var roleid = $(this).attr('roleid');
-			var rolename = $(this).attr('rolename');
-			var ip = $("#sip").val();
-			var obj = $(this);
-			
-			$.post('<{$logicApp}>/gmchat/killPlayer',{roleid:roleid,rolename:rolename,ip:ip},function(data){
-				obj.parents('td').html(data.msg);
-			},'json');
-			
-		});
+
 								
 		//快捷冻结
 		$(".djbt").click(function(){
@@ -411,55 +465,7 @@
 			})	
 		})	;
 		
-			//快捷禁言
-		$(".jybt").click(function(){
-			var id = $(this).attr('roleid');
-			var rolename = $(this).attr('rolename');
-			var ip = $("#sip").val();
-			//var stoptime = $("#stoptime").val();
-			//var reason = $("#reason").val();
-			var time = Date.parse(new Date());
-			$("#rname").html(rolename);
-			$("#jyform").dialog({
-				height: 300,
-				width: 500,
-				buttons: {
-					'确定' : function(){
-						$.ajax({
-							type  : "post",
-							url : "<{$logicApp}>/gmoperate/stoptalk",
-							data :
-							{
-								ip : ip,
-								rolename : rolename,
-								stoptime :$("#stoptime").val(),
-								reason :  $("#reason").val(),
-								time : time
-							},
-							dataType : 'json',
-							success : function(data){
-								if(typeof(data.error) != 'undefined')
-								{
-									if(data.error != '')
-									{
-										alert(data.error);
-									}
-								}else{
-									alert("禁言成功");
-									$("#jyform").dialog("close");
-								}
-							},
-							error : function(){
-								alert('error');
-							}
-						})
-					},
-					'取消' : function(){
-						$(this).dialog("close");
-					}
-				}
-			})
-		});
+
 		
 		
 	
