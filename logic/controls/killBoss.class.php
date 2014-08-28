@@ -41,23 +41,35 @@ class killboss{
 	 */
 	public function getHistoryLog(){
 		$this->endDate = $this->endDate.' 23:59:59';
-		if($this->ip&&$this->codeValue) {
+		if($this->ip) {
 			global $t_conf;
 			$srever = 's'.$this->ip;
 			$Server = F($t_conf[$srever]['db'], $t_conf[$srever]['ip'], $t_conf[$srever]['user'], $t_conf[$srever]['password'], $t_conf[$srever]['port']);
-			if ($this->code==2){
-				$user = $Server->fquery("SELECT GUID,RoleName from player_table where RoleName='{$this->codeValue}'");
-			}elseif ($this->code==3) {
-				$user = $Server->fquery("SELECT GUID,RoleName from player_table where GUID=$this->codeValue");
+			
+			if (!empty($this->codeValue)){
+				if ($this->code==2){
+					$user = $Server->fquery("SELECT GUID,RoleName from player_table where RoleName='{$this->codeValue}'");
+				}elseif ($this->code==3) {
+					$user = $Server->fquery("SELECT GUID,RoleName from player_table where GUID=$this->codeValue");
+				}
+					
+				if (empty($user)){
+					echo json_encode('用户不存在');exit;
+				}
+				$userInfo[$user[0]['GUID']] = $user[0];
+			}else {
+				$user = $Server->fquery("SELECT GUID,RoleName from player_table");
+				foreach ($user as $v){
+					$userInfo[$v['GUID']] = $v;
+				}
 			}
 			
-			if (empty($user)){
-				echo json_encode('用户不存在');exit;
-			}
 			
 			$obj = D("game".$this->ip);
 			$where = "date between '{$this->startDate}' and '{$this->endDate}' ";
-			$where .= " and playid=".$user[0]['GUID'];
+			if (!empty($this->codeValue)){
+				$where .= " and playid=".$user[0]['GUID'];
+			}
 			$total =  $obj->table('killboss')->where($where)->total();
 
 			if (!$total){
@@ -73,7 +85,7 @@ class killboss{
 			$boss = json_decode(file_get_contents($bossPath),true);
 			
 			foreach ($list as $k=>$v){
-				$list[$k]['playername'] = $user[0]['RoleName'];
+				$list[$k]['playername'] = $userInfo[$v['playid']]['RoleName'];
 				$list[$k]['bossname'] = $boss[$v['bossid']]['MonsterName'];
 			}
 			
@@ -91,18 +103,27 @@ class killboss{
 
 	//查看当天
 	public function getCurrentLog(){
-		if ($this->ip&&$this->codeValue){
+		if ($this->ip){
 			global $t_conf;
 			$srever = 's'.$this->ip;
 			$Server = F($t_conf[$srever]['db'], $t_conf[$srever]['ip'], $t_conf[$srever]['user'], $t_conf[$srever]['password'], $t_conf[$srever]['port']);
-			if ($this->code==2){
-				$user = $Server->fquery("SELECT GUID,RoleName from player_table where RoleName='{$this->codeValue}'");
-			}elseif ($this->code==3) {
-				$user = $Server->fquery("SELECT GUID,RoleName from player_table where GUID=$this->codeValue");
-			}
 			
-			if (empty($user)){
-				echo json_encode('用户不存在');exit;
+			if (!empty($this->codeValue)){
+				if ($this->code==2){
+					$user = $Server->fquery("SELECT GUID,RoleName from player_table where RoleName='{$this->codeValue}'");
+				}elseif ($this->code==3) {
+					$user = $Server->fquery("SELECT GUID,RoleName from player_table where GUID=$this->codeValue");
+				}
+					
+				if (empty($user)){
+					echo json_encode('用户不存在');exit;
+				}
+				$userInfo[$user[0]['GUID']] = $user[0];
+			}else {
+				$user = $Server->fquery("SELECT GUID,RoleName from player_table");
+				foreach ($user as $v){
+					$userInfo[$v['GUID']] = $v;
+				}
 			}
 			
 			$obj = D('game_base');
@@ -110,7 +131,11 @@ class killboss{
 			$path = LPATH . $db['g_ip'] . '/' . date('Y-m-d') . '/';	//日志文件所在目录路径
 			$filePath = $path.'log-type-20.log';
 			//$filePath = LPATH.'192.168.0.64/2014-07-29/log-type-20.log';
-			$data = $this->getFileDate($filePath, $user[0]['GUID']);
+			if (empty($this->codeValue)){
+				$data = $this->getFileDate($filePath, 0);
+			}else {
+				$data = $this->getFileDate($filePath, $user[0]['GUID']);
+			}
 			if (empty($data)){
 				echo 1;exit;
 			}
@@ -120,7 +145,7 @@ class killboss{
 			
 			foreach ($data as $k=>$v){
 				$data[$k]['date'] = date('Y-m-s H:i:s',$v['time']);
-				$data[$k]['playername'] = $user[0]['RoleName'];
+				$data[$k]['playername'] = $userInfo[$v['playid']]['RoleName'];
 				$data[$k]['bossname'] = $boss[$v['bossid']]['MonsterName'];
 			}
 			
@@ -151,7 +176,9 @@ class killboss{
 					$INFO  = str_replace("'", '"', $INFO );
 					$arr = json_decode($INFO , true);
 					if(is_array($arr)) {
-						if ($arr['playid']==$playid) {
+						if ($playid!=0&&$arr['playid']==$playid) {
+							$log_data[] = $arr;
+						}elseif ($playid==0){
 							$log_data[] = $arr;
 						}
 					}

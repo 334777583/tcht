@@ -159,9 +159,6 @@
 			},
 			
 			historyshow : function(page) {
-				if($('#codeValue').val()==''){
-					alert('请输入角色名');return false;
-				}
 				$.ajax({
 						type : 'POST',
 						url : '<{$logicApp}>/killboss/getHistoryLog',
@@ -211,9 +208,6 @@
 			},
 			
 			show : function(page) {
-				if($('#codeValue').val()==''){
-					alert('请输入角色名');return false;
-				}
 				$.ajax({
 						type : 'POST',
 						url : '<{$logicApp}>/killboss/getCurrentLog',
