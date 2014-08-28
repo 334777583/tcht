@@ -53,6 +53,9 @@ class rollsuit{
 			$oldAccount = array();
 			for ($i=$ip-1;$i>0;$i--){
 				$sever = 's'.$i;
+				if (!isset($t_conf[$sever])){
+					continue;
+				}
 				$ServerTem = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
 				
 				$player[$i] = $ServerTem->table('game_user')->field('account')->select();
