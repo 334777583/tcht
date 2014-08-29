@@ -114,6 +114,9 @@ class userpay{
 			
 			$result['dPer'] = round($payAll/$day,2);
 			$month = floor((time()-$chongzhi[0]['c_ts'])/(30*24*60*60))+0.5;
+			if ($month<1){
+				$month = 1;
+			}
 			$result['mPer'] = round($payAll/$month,2);
 			
 			$list[] = $result;
