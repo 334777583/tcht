@@ -364,7 +364,7 @@ class gmtoolsask{
 	 * 道具ID与道具名称关系
 	 */
 	public function getToolDetail(){
-		$ip = I('ip');
+		$ip = get_var_value('ip');
 		$obj = D('game'.$ip);
 		$list = array();	//道具ID与道具名称列表
 		$total = 0;			//记录总数
