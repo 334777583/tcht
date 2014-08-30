@@ -24,6 +24,7 @@ body {
 		<span id="1">登录汇总</span>
 		<span id="2" class="user-gray">在线信息</span>
 		<span id="3" class="user-gray">在线时长</span>
+		<span id="4" class="user-gray">注册信息</span>
 		<hr/>
 	</div>
 	
@@ -234,7 +235,69 @@ body {
 		</div>
 	</div>
 	
-	<div id="tabs-3" style="display:none" class="tabitem">
+		<div id="tabs-4" style="display:none" class="tabitem">
+		<div>
+			<table class="explain">
+				<thead>
+				</thead>
+				<tbody style="font-family:Mingliu">
+					<tr>
+						<td width="5%"  class="tableleft"><b>说明：</b></td>
+					</tr>
+					<tr>
+						<td width="95%" class="tableleft">1、首次进入此页面默认显示的是今天凌晨到进入页面的时间的注册信息；</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="top_item topinfo" style="margin-bottom: 0px">
+			<div>
+				<label>
+					<span>服务器:</span>
+					<select id="registerip">
+					<{foreach from=$ipList item=ip}>
+						<option value="<{$ip.s_id}>" ip="<{$ip.g_ip}>"><{$ip.s_name}></option>
+					<{/foreach}>
+					</select>
+				</label>
+				<label>
+					<span>时间:</span>
+					<input type="text" id="registerdate" class="input1"/>
+				</label>
+				<label>
+					<input type="button" id="registerquery" onclick="register()" value="查询"/>
+				</label>
+			</div>
+		</div>
+		<div>
+			<div>
+				<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0" class="table_blue2">
+					<tr>
+						<td align="center" >
+							<div id="chartdiv4" style="width: 100%; height: 400px;"></div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div style="clear:both"></div>
+		</div>
+		<div style="clear: both;"></div>
+		<div>
+			<table  class="mytable" cellspacing="0" align="center" id="registertable">
+				<thead>
+					<tr>
+						<th style="width:20%">统计时间</th>
+						<th style="width:20%">注册人数</th>
+						<th style="width:60%">注：柱状下限为0，峰值为100具体长度根据在线人数比例显示</th>
+					</tr>
+				</thead>
+				<tbody id="registerdbody">
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+		<div id="tabs-3" style="display:none" class="tabitem">
 		<div>
 			<div>
 				<table class="explain">
@@ -286,6 +349,7 @@ body {
 			</div>
 		</div>
 	</div>
+	
 </div>
 
 <!-- 服务器 -->
@@ -308,13 +372,15 @@ body {
 <script src="<{$res}>/js/function.js" type="text/javascript"></script>
 <script type="text/javascript">
 	//登录汇总
-	var user_login = {	
+	var user_login = {
 		INIT : function(){
 			var self = this;
 			
 			//时间插件
 			$("#startdate").datepicker();
 			$("#enddate").datepicker();
+			
+			$("#registerdate").datepicker();
 			
 			//根据条件查询
 			$("#querybtn").click(function(){
@@ -378,6 +444,21 @@ body {
 					if($("#chartdiv3").children().length > 0){
 						$("#chartdiv3").children().first().css("width","1669px");
 						$("#chartdiv3").children().first().css("height","352px");
+					}
+				}else if(4 == this.id){ //注册信息
+					$("#user-tabs span").attr("class","user-gray");//标签切换颜色
+					$(this).removeClass("user-gray");
+					
+					var today =  curentDate();
+					$("#registerdate").val(today);
+					
+					$("#tabs-4").show();
+					showTitle("游戏数据统计:注册信息");
+					register();
+					
+					if($("#chartdiv4").children().length > 0){
+						$("#chartdiv4").children().first().css("width","1669px");
+						$("#chartdiv4").children().first().css("height","352px");
 					}
 				}
 				$(id).css("display","block");
@@ -1369,7 +1450,150 @@ body {
 		user_login.INIT();
 		user_zaxx.INIT();
 		user_zxsc.INIT();			
+		
+		$("#registerip").change(function() {
+			if($("#registerip").val() == 0){
+				$("#dform").dialog({
+					height: 500,
+					width: 700,
+					buttons :{
+						"确认": function(){
+							var item = $(':radio[name="db"]:checked').val();
+							$("#registerip").val(item);
+							$(this).dialog("close");
+						},
+						"关闭" : function(){
+							$(this).dialog("close");
+						}
+					}
+				})
+			}
+		});
+		
 	})
+	
+	function register(){
+			var endDate=$("#registerdate").val();
+			var self  = this;
+			var minPeriod = 'mm';
+			$.ajax({
+				type : 'get',
+				url : '<{$logicApp}>/userlogin/getRegisterData',
+				dataType : 'json',
+				data :{
+					ip : $("#registerip").val(),
+					endDate : endDate
+				},
+				beforeSend : function(){
+					$("#chartdiv4").html("<div style='margin-top:200px;width:100%;display:block;text-align:center'><img src=\"<{$res}>/images/loading.gif\"/></div>");
+					$("#registerdbody").html("<tr><td colspan='3'><img src=\"<{$res}>/images/loading.gif\"/></td></tr>");
+				},
+				success : function(data){
+					var olist = data.list;
+					var html ='';
+					if(olist.length>0){
+						var digData = [];//清空数组
+						for(var i in olist){
+							var percent = parseInt(olist[i]["num"])/100*100+"%";
+							html += "<tr>";
+							html += "<td>" + olist[i]["date"] + "</td>";
+							html += "<td>" + olist[i]["num"] + "</td>";
+							html += "<td style=\"text-align:left\"><div style=\"background-color: #87cefa;height:8px;width:"+percent+"\">&nbsp;</div></td>";
+							html += "</tr>";
+							
+							var newDate = user_zaxx.dhToDate(olist[i]["date"]);
+							var visits = parseInt(olist[i]["num"]);
+							digData.push({
+								date: newDate,
+								visits: visits
+							}); 
+							
+						}
+						$("#registerdbody").html(html);
+						
+						registerChartObj(digData,minPeriod);		//显示在线信息图表 
+					}else {
+						$("#chartdiv4").html("<div style='text-align:center'>没有记录！</div>");
+						$("#registerdbody").html("<tr><td colspan='3'>没有记录！</td></tr>");
+					}
+				},
+				error : function() {
+					$("#chartdiv4").html("<div style='text-align:center'>没有记录！</div>");
+					$("#registerdbody").html("<tr><td colspan='3'>没有记录！</td></tr>");
+				}
+			});
+		
+		}
+	
+	//封装在线信息amcharts配置 
+	 function registerChartObj(data, minPeriod){
+		var digChart;
+		var zoomChart = function(){
+			digChart.zoomToIndexes(0,24);
+		}		
+		
+		// SERIAL digChart	
+		digChart = new AmCharts.AmSerialChart();
+		digChart.pathToImages = "<{$res}>/images/";
+		digChart.zoomOutButton = {
+			backgroundColor: '#000000',
+			backgroundAlpha: 0.15
+		};
+		
+		digChart.categoryField = "date";
+		digChart.dataProvider = data;
+
+		// listen for "dataUpdated" event (fired when digChart is inited) and call zoomChart method when it happens
+		digChart.addListener("dataUpdated", zoomChart);
+
+		// AXES
+		// category				
+		var categoryAxis = digChart.categoryAxis;
+		categoryAxis.parseDates = true; // as our data is date-based, we set parseDates to true
+		categoryAxis.minPeriod = minPeriod; // our data is daily, so we set minPeriod to DD
+		categoryAxis.dashLength = 2;
+		categoryAxis.gridAlpha = 0.15;  
+		categoryAxis.axisColor = "#DADADA";
+
+		// first value axis (on the left)
+		var valueAxis1 = new AmCharts.ValueAxis();
+		valueAxis1.axisColor = "#0066CC";
+		valueAxis1.axisThickness = 2;
+		valueAxis1.gridAlpha = 0;
+		digChart.addValueAxis(valueAxis1);
+
+		// GRAPHS
+		// first graph
+		var graph1 = new AmCharts.AmGraph();
+		graph1.valueAxis = valueAxis1; // we have to indicate which value axis should be used
+		graph1.title = "注册走势";
+		graph1.lineColor = "#0066CC";
+		graph1.valueField = "visits";
+		graph1.bullet = "round";
+		graph1.hideBulletsCount = 30;
+		digChart.addGraph(graph1);
+		
+
+		// CURSOR
+		var chartCursor = new AmCharts.ChartCursor();
+		chartCursor.cursorPosition = "mouse";
+		//chartCursor.categoryBalloonDateFormat = "JJ:NN:SS";
+		chartCursor.categoryBalloonDateFormat = "JJ:NN";
+		digChart.addChartCursor(chartCursor);
+
+		// SCROLLBAR
+		var chartScrollbar = new AmCharts.ChartScrollbar();
+		digChart.addChartScrollbar(chartScrollbar);
+
+		// LEGEND
+		var legend = new AmCharts.AmLegend();
+		legend.marginLeft = 110;
+		digChart.addLegend(legend);
+		
+		
+		digChart.write("chartdiv4");
+		
+	}
 	
 	setInterval(user_zaxx.setCurent,1000);
 	
