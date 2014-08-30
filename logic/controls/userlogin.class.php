@@ -326,7 +326,42 @@ class userlogin{
 		echo json_encode(array('list' => $list, 'chartList' => $chartList));
 		exit();
 	}
-	
+
+	//获取注册信息数据
+	public function getRegisterData(){
+		$ip = get_var_value('ip');
+		$date = get_var_value('endDate');
+		$start = strtotime($date);
+		$end = $start+24*3600;
+		global $t_conf;
+		$srever = 's'.$ip;
+		$Server = F($t_conf[$srever]['db'], $t_conf[$srever]['ip'], $t_conf[$srever]['user'], $t_conf[$srever]['password'], $t_conf[$srever]['port']);
+		$sql = "SELECT id,account,Createtime from game_user where Createtime BETWEEN $start and $end order by id asc";
+		$user = $Server->fquery($sql);
+		if (empty($user)){
+			echo json_encode(array('list'=>1));exit;
+		}
+		$list = array();
+		foreach ($user as $k=>$v){
+			$mm = date('Y-m-d H:i',$v['Createtime']);
+			if (isset($list[$mm])){
+				$list[$mm]++;
+			}else {
+				$list[$mm] = 1;
+			}
+		}
+		$tem = array();
+		for ($i=$start;$i<=$end;$i=$i+60){
+			$mm = date('Y-m-d H:i',$i);
+			if (!isset($list[$mm])){
+				$tem[$i] = array('date'=>date('Y-m-d H:i:s',$i),'num'=>0);
+			}else {
+				$tem[$i] = array('date'=>date('Y-m-d H:i:s',$i),'num'=>$list[$mm]);
+			}
+		}
+		sort($tem);
+		echo json_encode(array('total'=>count($user),'list'=>$tem));
+	}
 	
 	//日平均在线时长分布
 	public function getDuration(){
