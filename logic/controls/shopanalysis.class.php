@@ -418,12 +418,7 @@ class shopanalysis{
 		}
 		
 		
-<<<<<<< HEAD
 		$goods = $obj -> table('tools_detail') -> select();
-=======
-		$point = D("game_base");					//获取物品名称
-		$goods = $point -> table('tools_detail') -> select();
->>>>>>> d52e975408623db66de5fac79391048e10b98b26
 		$goods_arr = array();
 		if(!empty($goods)){
 			foreach($goods as $val) {
