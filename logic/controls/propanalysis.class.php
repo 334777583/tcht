@@ -87,7 +87,7 @@ class propanalysis{
 					 ->group('i_price,i_shopid')
 					 ->order('i_date desc')
 					 ->select();
-		$goods = $obj ->table('goods_detail')
+		$goods = $obj ->table('tools_detail')
 					  ->select();
 		$goods_arr = array();
 		// foreach($goods as $val) {
