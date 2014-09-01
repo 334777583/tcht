@@ -419,11 +419,11 @@ class shopanalysis{
 		
 		
 		$point = D("game_base");					//获取物品名称
-		$goods = $point -> table('goods_detail') -> select();
+		$goods = $point -> table('tools_detail') -> select();
 		$goods_arr = array();
 		if(!empty($goods)){
 			foreach($goods as $val) {
-				$goods_arr[$val['g_code']] = $val['g_name'];
+				$goods_arr[$val['t_code']] = $val['t_name'];
 			}
 		}
 		$goods_arr['other'] = '其他';
