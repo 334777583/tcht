@@ -95,7 +95,7 @@ class propanalysis{
 		// }
 		$list = array();
 		foreach($salelist as $key => $value){
-			$list[$key]['stype'] = '49you';
+			$list[$key]['stype'] = 'qzone';
 			$list[$key]['db'] = $base['s_name'];
 			if($salelist[$key]['i_shopid'] = $goods[$key]['t_code']){
 				$list[$key]['gname'] = $goods[$key]['t_name'];

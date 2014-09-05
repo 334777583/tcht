@@ -35,6 +35,12 @@ class rollsuit{
 		$pageSize = get_var_value('pageSize') == NULL ? 10 : get_var_value('pageSize');
 		$curPage = get_var_value('curPage') == NULL ? 1 : get_var_value('curPage');
 		if($ip>1) {
+			//服务器名称
+			$dbList = D('game_base')->fquery("select g_id,g_name from gamedb where g_flag=1");
+			foreach ($dbList as $k=>$v){
+				$serverList[$v['g_id']] = $v['g_name'];
+			}
+			
 			global $t_conf;
 			$sever = 's'.$ip;
 			$Server = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
@@ -45,7 +51,7 @@ class rollsuit{
 			$sql = "SELECT a.id,a.account,b.GUID,b.RoleName,b.CreateTime,b.LoginTime,b.RMB,b.ServerId from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId";
 			$play = $Server->fquery($sql);
 			foreach ($play as $k=>$v){
-				$account[$ip][] = $v['account'];//新服所有账号	
+				$account[$ip][] = $v['account'];//新服所有账号
 				$accountList[$v['account']] = $v;//账号=》信息
 			}
 			
@@ -82,7 +88,7 @@ class rollsuit{
 			$createTem = $Server->fquery($sqlTem);
 			
 			$result = array(
-					'sid'=>$ip,
+					'sid'=>$serverList[$ip],
 					'create_all'=>count(array_unique($account[$ip])),//总创角（去重）
 					'create_all_1'=>count($account[$ip]),
 					'create'=>count($oldAccount),//滚服创角（去重）
@@ -119,7 +125,7 @@ class rollsuit{
 					$tem['paynum'] = 0;
 					$tem['paymoney'] = 0;
 				}
-				$tem['oldServerId'] = $old[$v];
+				$tem['oldServerId'] = $serverList[$old[$v]];
 				$tem['CreateTime'] = date("Y-m-d H:i:s",$tem['CreateTime']);
 				$tem['LoginTime'] = date("Y-m-d H:i:s",$tem['LoginTime']);
 				$accountListTem[] = $tem;

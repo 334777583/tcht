@@ -93,7 +93,7 @@ class ipquery{
 		$startDate = get_var_value('startdate')==null?date('Y-m-d'):get_var_value('startdate');
 		$rolename = get_var_value('rolename');
 		$Gamebase = D('game_base');
-		$g_folder = $Gamebase->field('g_ip')->table('gamedb')->where('g_id = '.$ip)->find();
+		$g_folder = $Gamebase->field('g_ip,g_name')->table('gamedb')->where('g_id = '.$ip)->find();
 		$path = LPATH . $g_folder['g_ip'] . '/' . $startDate . '/';	//日志文件所在目录路径
 		$loginLogFilePath = $path.'log-type-2.log';
 		if (!file_exists($loginLogFilePath)) {
@@ -110,7 +110,7 @@ class ipquery{
 			$playeridArr[] = $v['guid'];
 			$player[$v['guid']]['playerid'] = $v['guid'];
 			$player[$v['guid']]['rolename'] = $v['rolename'];
-			$player[$v['guid']]['serverid'] = $v['serverid'];
+			$player[$v['guid']]['serverid'] = $g_folder['g_name'];
 		}
 		$fp = fopen($loginLogFilePath, "r");		//读取日志文件
 		$ipArr = array();

@@ -32,13 +32,13 @@ class userpay{
 	 */
 	public function getData(){
 		$endDate = get_var_value('endDate');
-		$dbList = D('game_base')->fquery("select g_id from gamedb where g_flag=1");
+		$dbList = D('game_base')->fquery("select g_id,g_name from gamedb where g_flag=1");
 		$endDateTime = strtotime($endDate)+24*60*60;
 		$startDateTime = $endDateTime-15*24*60*60;
 		
 		foreach ($dbList as $k=>$v){
 			$result = array(
-					'serverid'=>$v['g_id'],
+					'serverid'=>$v['g_name'],
 					'date'=>'0000-00-00',
 					'roleNum'=>0,//开服至统计截至日期的全部创建用户
 					'payNum'=>0,//开服至统计截至日期的全部付费用户
