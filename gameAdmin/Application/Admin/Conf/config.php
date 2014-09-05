@@ -11,7 +11,7 @@
 
 return array(
 	//'配置项'=>'配置值'
-	'WEB_title'=>'本地测试后台tp',
+	'WEB_title'=>'后台tp',
 		
 	//用户密码加密工具
 	'USER_PASSWORD_KEY'=>'!@#@#',

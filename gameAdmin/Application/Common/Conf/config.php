@@ -99,7 +99,7 @@ return array (
 		'DATA_AUTH_KEY' => 'd:m-jUFkr]ee\Q|0./CJA6RyBi(PMaYeW)KT`N,sZS<', // 默认数据加密KEY
 		
 		/* 调试配置 */
-		'SHOW_PAGE_TRACE' => true,
+		'SHOW_PAGE_TRACE' => false,
 
 	   	/* 全局过滤配置 */
 	    'DEFAULT_FILTER' => 'trim', // 全局过滤函数
