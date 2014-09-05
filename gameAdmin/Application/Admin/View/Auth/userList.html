@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>后台用户权限管理--用户列表</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link href="__CSS__/skin.css" rel="stylesheet" type="text/css">
+        <link href="__CSS__/jquery-ui.css" rel="stylesheet" type="text/css">
+        <style type="text/css">
+        <!--body {
+            margin-left: 0px;
+            margin-top: 0px;
+            margin-right: 0px;
+            margin-bottom: 0px;
+            background-color: #EEF2FB;
+            font-size: 12px;
+        }
+        -->
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div>
+                <div id="user-tabs">
+                    <span id="1">基本信息</span>
+                    <span id="2" class="user-gray" onclick="window.location.href='{:U(\"Auth/roleAuthList\")}'">角色设置</span>
+                    <span id="3" class="user-gray" onclick="window.location.href='{:U(\"Auth/ruleList\")}'">模块设置</span>
+                </div>
+                <hr/>
+                <div id="tabs-1" class="tabitem">
+                    <div style="float:right">
+                        <img src="__IMG__/add-btn2.png" style="cursor: pointer;" id="addbtn"/>
+                    </div>
+                </div>
+                <table class="mytable" id="mytable" cellspacing="0" align="center">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>用户名</th>
+                            <th>用户组</th>
+                            <th>真实姓名</th>
+                            <th>电话号码</th>
+                            <th>email</th>
+                            <th>创建时间</th>
+                            <th>修改时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    	<volist name="userList" id="ul">
+                    		<tr>
+                    			<td>{$ul['u_id']}</td>
+								<td>{$ul['u_name']}</td>
+								<td>{$ul['g_name']}</td>
+								<td>{$ul['u_realname']}</td>
+								<td>{$ul['u_phone']}</td>
+								<td>{$ul['u_email']}</td>
+								<td>{$ul['u_createtime']}</td>
+								<td>{$ul['u_updatetime']}</td>
+								<td uid="{$ul['u_id']}">
+	                                <if condition="$ul['u_flag'] eq 0">
+	                                	<label class="stopicon"></label>
+	                                	<span class="stopbtn">停用</span>
+									<elseif condition="$ul['u_flag'] eq 1"/>
+										<label class="yesicon"></label>
+										<span class="yesbtn">启用</span>
+	                                </if>
+	                                <label class="editicon"></label>
+	                                <span class="editbtn">编辑</span>
+	                                <label class="deleteicon"></label>
+	                                <span class="deletebtn">删除</span>
+								</td>
+                    		</tr>
+                    	</volist>
+                    </tbody>
+                </table>
+                <div id="pagehtml" style="float:right;margin-right:20px;display:block"></div>
+                <div style="clear:both"></div>
+                <div style="height:30px">&nbsp;</div>
+            </div>
+        </div>
+		
+        <div id="confirm" style="display:none">
+            <div style="text-align: center;">
+                确定要永久删除吗？
+            </div>
+        </div>
+		
+        <div id="editform" style="display:none">
+            <div class="ajaxform">
+                <table width="80%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+                    <tbody>
+                        <tr>
+                            <td align="right">用户名：</td>
+                            <td>
+                                <input type="text" class="input-1" id="username">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">密码：</td>
+                            <td>
+                                <input type="password" class="input-1" id="password">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">用户组：</td>
+                            <td>
+                                <select id="usergroup">
+                                    <option value="0">请选择</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">真实姓名：</td>
+                            <td>
+                                <input type="text" class="input-1" id="realname">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">电话号码：</td>
+                            <td>
+                                <input type="text" class="input-1" id="phone">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">email：</td>
+                            <td>
+                                <input type="text" class="input-1" id="email">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+    <script src="__STATIC__/jquery.js" type="text/javascript">
+    </script>
+    <script src="__JS__/jquery-ui.js" type="text/javascript">
+    </script>
+    <script src="__JS__/function.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+    $(function(){
+        showTitle("GM工具：权限管理");
+        
+        //停用
+        $(".stopbtn").live("click", function(){
+            changeFlag($(this).parents('td').attr("uid"), 1, $(this));
+        });
+        
+        //启用
+        $(".yesbtn").live("click", function(){
+            changeFlag($(this).parents('td').attr("uid"), 0, $(this));
+        });
+        
+        //编辑
+        $(".editbtn").live("click", function(){
+			var uid = $(this).parents('td').attr('uid');
+            $.post('{:U("Auth/getUserData")}', {
+                uid: uid
+            }, function(data){
+				if(data.status==0){
+					alert(data.info);return false;
+				}
+                var opHtml = "";
+				var groupslist = data.groups;
+                for (var i in groupslist) {
+                    if (groupslist[i]["g_id"] == data.userInfo["g_id"]) {
+                        opHtml += "<option selected='selected' value='"+groupslist[i]["g_id"]+"'>"+groupslist[i]["g_name"]+"</option>";
+                    }else {
+						opHtml += "<option value='"+groupslist[i]["g_id"]+"'>"+groupslist[i]["g_name"]+"</option>";
+					}
+                }
+				$("#usergroup").html(opHtml);
+				$("#username").val(data.userInfo["u_name"]);
+                $("#password").val('');
+                $("#realname").val(data.userInfo["u_realname"]);
+                $("#phone").val(data.userInfo["u_phone"]);
+                $("#email").val(data.userInfo["u_email"]);
+				
+                $("#editform").dialog({
+                    height: 300,
+                    width: 400,
+                    buttons: {
+                        '保存': function(){
+							var username = $("#username").val();
+							var password = $("#password").val();
+							if(username==''){
+								alert('请填写用户名');return false;
+							}else if(password==''){
+								alert('请填写用户密码');return false;
+							}
+                            $.post('{:U("Auth/updateUser")}', {
+                                uid: uid,
+                                username: $("#username").val(),
+                                password: $("#password").val(),
+                                realname: $("#realname").val(),
+                                phone: $("#phone").val(),
+                                email: $("#email").val(),
+                                gid: $("#usergroup").val()
+                            }, function(dataE){
+								alert(dataE.info);
+								if(dataE.status){
+									window.location.reload();
+								}
+                            }, 'json')
+                        },
+                        '取消': function(){
+                            $(this).dialog("close");
+                        }
+                    }
+                })
+				
+            }, 'json')
+        });
+        
+        //添加 
+        $("#addbtn").click(function(){
+            $.post('{:U("Auth/getGroups")}', function(data){
+				if(data.status==0){
+					alert(data.info);return false;
+				}
+				var opHtml = "";
+				var groupslist = data.groups;
+                for (var i in groupslist) {
+                    opHtml += "<option value='"+groupslist[i]["g_id"]+"'>"+groupslist[i]["g_name"]+"</option>";
+                }
+                $("#usergroup").html(opHtml);
+                $("#editform").dialog({
+                    height: 300,
+                    width: 400,
+                    buttons: {
+                        '添加': function(){
+							var username = $("#username").val();
+							var password = $("#password").val();
+							if(username==''){
+								alert('请填写用户名');return false;
+							}else if(password==''){
+								alert('请填写用户密码');return false;
+							}
+                            $.post('{:U("Auth/updateUser")}', {
+                                username: username,
+                                password: password,
+                                realname: $("#realname").val(),
+                                phone: $("#phone").val(),
+                                email: $("#email").val(),
+                                gid: $("#usergroup").val()
+                            }, function(dataE){
+                                alert(dataE.info);
+								if(dataE.status){
+									window.location.reload();
+								}
+                            }, 'json')
+                        },
+                        '取消': function(){
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            }, 'json')
+        });
+        
+        //删除
+        $(".deletebtn").live("click", function(){
+            var dom = $(this);
+            $("#confirm").dialog({
+                height: 150,
+                width: 300,
+                buttons: {
+                    '确定': function(){
+                        $.post('{:U("Auth/deleteUser")}', {
+                            uid: dom.parents('td').attr("uid")
+                        }, function(data){
+                            alert(data.info);
+							if(data.status){
+								window.location.reload();
+							}
+                        }, 'json')
+                    },
+                    '取消': function(){
+                        $(this).dialog("close");
+                    }
+                }
+            })
+        });
+        
+    });
+		
+    function changeFlag(id, flag, obj){
+        $.post('{:U("Auth/changeFlag")}', {
+            id: id,
+            flag: flag
+        }, function(data){
+            if (data['status']==1) {
+                if (flag == 1) {
+                    obj.prev().attr('class','yesicon');
+                    obj.text("启用");
+                    obj.attr('class','yesbtn');
+                }else if (flag == 0) {
+                    obj.prev().attr('class','stopicon');
+                    obj.text("停用");
+                    obj.attr('class','stopbtn');
+                }
+            }else{
+				alert("操作失败！");
+			}
+        }, 'json');
+    }
+    </script>
+</html>

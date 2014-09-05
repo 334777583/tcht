@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>道具申请</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link href="__CSS__/skin.css" rel="stylesheet" type="text/css">
+        <link href="__CSS__/jquery-ui.css" rel="stylesheet" type="text/css">
+		<script src="__STATIC__/My97DatePicker/WdatePicker.js" type="text/javascript" ></script>
+        <style type="text/css">
+        <!--body {
+            margin-left: 0px;
+            margin-top: 0px;
+            margin-right: 0px;
+            margin-bottom: 0px;
+            background-color: #EEF2FB;
+            font-size: 12px;
+        }
+        -->
+        </style>
+    </head>
+<body>
+	<div>
+		<div id="tabs-1" class="tabitem">
+			<div>
+				<table class="explain">
+					<tbody style="font-family:Mingliu">
+						<tr>
+							<td width="5%"  class="tableleft"><b>说明：</b></td>
+						</tr>
+						<tr>
+							<td width="95%" class="tableleft">1、输入角色名给游戏对应玩家发送道具<font color = "red"><b>奖励</b></font>/<font color = "red"><b>补偿</b></font>，选择<font color = "red"><b>全服</b></font>时不需要输入任何角色名;谨慎使用<font color = "red"><b>全服</b></font>发起申请！</td>
+						</tr>
+						<tr>
+							<td width="95%" class="tableleft">2、暂不支持批量文件导入，如有需求另行修改</td>
+						</tr>
+						<tr>
+							<td width="95%" class="tableleft">3、道具ID尽量通过道具ID关系表获得，减少输入错误；</td>
+						</tr>
+						<tr>
+							<td width="95%" class="tableleft">4、确认<font color = "red"><b>货币及道具</b></font>填写正确后，提交申请后由有<font color = "red"><b>审批权限</b></font>的上级帐号审批申请，审批通过后才会给玩家发送带道具的邮件。</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>	
+			<div>
+				<table class="toptable">
+					<thead>
+					</thead>
+					<tbody>
+						<tr>
+							<td width="7%" class="tableright">
+								<span>服务器：</span>
+							</td>
+							<td width="93%" class="tableleft">
+								<select id="serverId">
+									<volist name="serverList" id="sl">
+										<option value="{$sl['g_id']}">{$sl['g_name']}</option>
+									</volist>
+									<option value="0" >全部</option>
+								</select>
+								&nbsp;&nbsp;&nbsp;&nbsp;
+								<input type="checkbox" id="task" />定时发送:
+								<input type="text"  id="tasktime" value="{$today}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1" onblur="this.className='input-text'" onfocus="this.className='input-text-bor'">
+							</td>
+						</tr>
+						<tr>
+							<td width="7%" class="tableright">
+								<select id="srole">
+									<option value="1" checked='checked'>角色名</option>
+									<option value="2">全服</option>
+								</select>
+							</td>
+							<td width="93%" class="tableleft">
+								<input type="input" class="input1" id="rolename" size="115"/>
+								<label><font color="red"><i><b>注</b>：批量账号则用英文分号隔开区分,例子:a;b;c</i></font></label>
+							</td>
+						</tr>
+						<tr id="level_info" style="display:none">
+							<td width="100%" colspan="2" style="padding:0px">
+								<table cellspacing = "0" cellpadding = "0" border="0" width="100%">
+									<tr>
+										<td width="7%" class="tableright">
+											<span>最小等级：</span>
+										</td>
+										<td width="93%" class="tableleft">
+											<input type="input" class="input1" size="5" value="0" id="minLv"/>
+											<font color="red"><i><b>注</b>：如无特别需求，无需修改</i></font>
+										</td>
+									</tr>
+									<tr>
+										<td width="7%" class="tableright">
+											<span>最大等级：</span>
+										</td>
+										<td width="93%" class="tableleft">
+											<input type="input" class="input1" size="5" value="100" id="maxLv"/>
+											<font color="red"><i><b>注</b>：如无特别需求，无需修改</i></font>
+										</td>
+									</tr>
+									<tr>
+										<td width="7%" class="tableright">
+											<span>邮件接收截止时间：</span>
+										</td>
+										<td width="93%" class="tableleft">
+											<input type="input" class="input1" size="5" id="emailTime" value="15"/>
+											<select id="day">
+												<option value="1">天</option>
+												<option value="2">周</option>
+												<option value="3">时</option>
+											</select>			
+											<font color="red"><i><b>注</b>：如无特别需求，无需修改</i></font>
+										</td>
+									</tr>
+									<tr>
+										<td width="5%" class="tableright">
+											<span>目标用户：</span>
+										</td>
+										<td width="95%" class="tableleft">
+											<input type="radio" value="1" name ="rad" id="rad1" checked=checked>
+											<label for="rad1">全部</label>&nbsp;&nbsp;&nbsp;
+											<input type="radio" name ="rad" value="2" id="rad2">
+											<label for="rad2">在线用户</label>&nbsp;&nbsp;&nbsp;
+											<input type="radio" name ="rad" value="3" id="rad3">
+											<label for="rad3">离线用户</label>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<!--
+						<tr id="txttr">
+							<td width="7%" class="tableright"><span>批量导入：</span></td>
+							<td width="93%" class="tableleft">
+								<form name="form" action="" method="POST" enctype="multipart/form-data">
+									<input id="fileToUpload" type="file" size="45" name="fileToUpload"/>
+									<input type="button" value="上传" class="uploadbtn"/>
+									<label><font color="red"><i><b>注</b>：批量账号导入支持txt</i></font></label>
+								</form>	
+							</td>
+						</tr>
+						-->
+						<tr>
+							<td width="7%" class="tableright">
+								<span>发送原因：</span>
+							</td>
+							<td width="93%" class="tableleft">
+								<textarea cols="100" rows="2" class="input1" id="reason">活动奖励</textarea>
+							</td>
+						</tr>
+						<tr>
+							<td width="7%" class="tableright">
+								<span>标题：</span>
+							</td>
+							<td width="93%" class="tableleft">
+								<div><input type="text" size="115" class="input1" id="title" value="系统邮件"/></div>
+							</td>
+						</tr>
+						<tr>
+							<td width="7%" class="tableright">
+								<span>信件内容：</span>
+							</td>
+							<td width="93%" class="tableleft">
+								<label><textarea cols="100" rows="2" class="input1" id="content">活动奖励</textarea></label>
+								<label class="link"><input type="button" value="增加超链接" id="addlink"/></label>
+							</td>
+						</tr>
+						<tr>
+							<td width="7%" class="tableright">
+								<span>申请赠送金额：</span>
+							</td>
+							<td width="93%" class="tableleft">
+								<span>元宝：</span><input type="text" size="10" class="input1" id="gold" value=""/>
+								<span>铜币：</span><input type="text" size="10" class="input1" id="copper" value=""/>
+							</td>
+						</tr>
+						<tr>
+							<td width="7%" class="tableright">
+								<span>申请赠送道具：</span>
+							</td>
+							<td width="93%" class="tableleft labc">
+								<span>道具ID：</span>
+								<span  class="input1">
+									<input type="text" size="13" id="toolsId" style="border: 0 none;"/>
+									<span class="mini-buttonedit-icon" id="tools_icon">&nbsp;&nbsp;&nbsp;</span>
+								</span>
+								<span>申请数量：</span><input type="text" size="3" class="input1" id="toolsNum" value=""/>
+								<input type="hidden" id="tolName"/>
+								<select id="bdGroup">
+									<option value="1">绑定</option>
+									<option value="0">非绑定</option>
+								</select>
+								<input type="button" value="添加道具" id="addTools"/>
+							</td>
+						</tr>
+						<tr id="fakermbtr">
+							<td width="7%" class="tableright">
+								<span>是否加入充值排行统计：</span>
+							</td>
+							<td width="93%" class="tableleft labc">
+								<select id="fakermb">
+									<option value="0">否</option>
+									<option value="1">是</option>
+								</select>
+							</td>
+						</tr>
+						<tr style="display:none" id="tool_table">
+							<td width="7%" class="tableright">
+								<span>道具列表：</span>
+							</td>
+							<td width="93%" class="tableleft">
+								<table class="littletable">
+									<thead>
+										<tr>
+											<th>道具ID</th>
+											<th>道具名称</th>
+											<th>数量</th>
+											<th>绑定状态（0为非绑定，1为绑定）</th>
+											<th>操作</th>
+										</tr>
+									</thead>
+									<tbody id="toolsBody">
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div style="clear: both"></div>
+			<div>
+				<input type="button" value="确认申请" id="apply"/>
+				<input type="button" value="刷新页面查看处理结果" onclick="applyList(1);"/>
+			</div>
+			<div>
+				<table  class="mytable">
+					<thead>
+						<tr>
+							<th>服务器</th>
+							<th>角色列表</th>
+							<th>时间</th>
+							<th>金钱与道具详情</th>
+							<th>邮件标题</th>
+							<th>邮件内容</th>
+							<th>发送原因</th>
+							<th>状态</th>
+							<th>后端状态</th>
+							<th>失败原因</th>
+							<th>申请人</th>
+							<th>审核人</th>
+						</tr>
+					</thead>
+					<tbody id="askBody">
+					</tbody>
+				</table>
+				<div id="pagehtml" style="float:right;margin-right:20px"></div>
+				<div id="example_length" class="dataTables_length" style="display:none">
+					<label>每页显示
+						<select id="menu" name="example_length" size="1" aria-controls="example">
+						<option value="10" selected="selected">10</option>
+						<option value="25">25</option>
+						<option value="50">50</option>
+						<option value="100">100</option>
+						</select> 条记录
+					</label>
+				</div>
+			</div>
+		</div>
+		<div style="clear:both"></div>
+		<input type="hidden" value="" id="ids"/>
+		<div style="height:50px">&nbsp;</div>
+	</div>
+	
+	<!-- 金钱与道具详情 -->
+	<div id="form"  style="display:none">
+		<div class="ajaxform">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+				<tbody>
+					<tr id="lv_info" style="display:none">
+						<td>
+							<table cellspacing="0" cellpadding="0" style="border: 1px solid #859497;" width="100%">
+								<tr>
+									<td>
+										<span>最小等级：</span><span id="t_minlv">0</span>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<span>最大等级：</span><span id="t_maxlv">0</span>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<span>邮件接收截止时间：</span><span id="t_endtime">0</span>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td>金钱：</td>
+					</tr>
+					<tr>
+						<td>
+							<table class="tooltable">
+								<thead>
+									<tr>
+										<th>
+											<span>元宝：</span><span id="f_gold">0</span>
+										</th>
+										<th>
+											<span>铜币：</span>
+											<span id="f_copper">0</span>
+										</th>
+									</tr>
+								</thead>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td>道具列表：</td>
+					</tr>
+					<tr>
+						<td>
+							<table class="tooltable">
+								<thead>
+									<tr>
+										<th>道具ID</th>
+										<th>道具名称</th>
+										<th>数量</th>
+										<th>绑定状态（0为非绑定，1为绑定）</th>
+									</tr>
+								</thead>
+								<tbody id="form_tools">
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<!--弹出覆盖层-->
+	<div class="overlay" style="display:none">
+		<table style="width:220px;height:100%;margin:0 auto;">
+			<tr>
+				<td style="text-align:center;vertical-align:middle">
+					<img src='__IMG__/ajax-loader.gif'/>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<!-- 道具ID与道具名称 -->
+	<div id="dform"  style="display:none">
+		<div class="ajaxform">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0">
+				<tbody>
+					<tr>
+						<td colspan='2'>道具ID与道具名称关系：</td>
+					</tr>
+					
+					<tr>
+						<td width="10%" style="text-align:left">
+							&nbsp;
+						</td>
+
+						<td width="90%" style="text-align:right">
+							<label>
+								<span>类型1:</span>
+								<select id="t_type1">
+									<option value="">请选择</option>
+								</select>
+							</label>
+							<label>
+								<span>类型2:</span>
+								<select id="t_type2">
+									<option value="">请选择</option>
+								</select>
+							</label>
+							<label>
+								<span>类型3:</span>
+								<select id="t_type3">
+									<option value="">请选择</option>
+								</select>
+							</label>
+							<label>
+								<span>道具名称或道具ID:</span>
+								<input type="text" id="searchKey"/ >
+								<input type="button" value="搜索" id="toolSearch"/>
+							</label>
+						</td>
+					</tr>
+					
+					<tr>
+						<td colspan='2'>
+							<table class="tooltable">
+								<thead>
+									<tr>
+										<th>道具ID</th>
+										<th>道具名称</th>
+										<th>类型1</th>
+										<th>类型2</th>
+										<th>类型3</th>
+										<th>操作</th>
+									</tr>
+								</thead>
+								<tbody id="dform_body">
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div id="pagehtml2" style="float:right;margin-right:20px"></div>
+		</div>
+	</div>
+	
+	<!-- 增加超链接 -->
+	<div id="lform"  style="display:none">
+			<div class="ajaxform">
+				<table width="90%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+					<tbody>
+						<tr>
+							<td width="20%" align="right">文字：</td>
+							<td width="30%"><input type="text" class="input1" id="e_text" ></td>
+							<td width="30%"><span style="color:red">注：文字不能为空</span></td>
+						</tr>
+						<tr>
+							<td align="right">链接：</td>
+							<td><input type="text" class="input1" id="e_link" value="http://" ></td>
+							<td>
+								&nbsp;
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<input type="hidden" id="s_temp" value="#00FFFF"/>
+			</div>
+		</div>
+	
+	
+		<!-- 服务器 -->
+        <div id="sform" style="display:none">
+            <div class="ajaxform">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+				<tr>
+					<td>
+					<volist name="serverList" id="sld" key="k">
+                        <if condition="$k%5 eq 0">
+                            <br/>
+                            <br/>
+                        </if>
+                        <input type="radio" name="db" value="{$sld['g_id']}" class="cbox" id="s{$k}"/>
+                        <label for="s{$k}">
+                            {$sld['g_name']}
+                        </label>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    </volist>
+					</td>
+				</tr>
+                </table>
+            </div>
+        </div>
+	
+	<script src="__STATIC__/jquery.js" type="text/javascript"></script>
+	<script src="__JS__/jquery-ui.js" type="text/javascript"></script> 
+	<script src="__JS__/function.js" type="text/javascript"></script>	
+	<script type="text/javascript">
+    $(document).ready(function(){
+        showTitle("GM工具:道具申请");
+        
+        $("#serverId").change(function(){
+            if ($("#serverId").val() == 0) {
+                $("#sform").dialog({
+                    height: 500,
+                    width: 700,
+                    buttons: {
+                        "确认": function(){
+                            var item = $(':radio[name="db"]:checked').val();
+                            $("#serverId").val(item);
+                            $(this).dialog("close");
+							applyList(1);
+                        },
+                        "关闭": function(){
+                            $(this).dialog("close");
+                        }
+                    }
+                })
+            }else {
+				applyList(1);
+			}
+        });
+			
+		//道具申请每页显示
+		$("#menu").change(function(){
+			applyList(1);
+		});
+		
+		applyList(1);
+		
+        //通过申请记录id，获取申请道具详细
+        $(".tdetial").live("click", function(){
+            var tid = $(this).parents('tr').attr("tid");
+            var str = $(this).prev().prev().text();
+            if (str == "全服") {
+                $("#lv_info").show();
+            }else {
+                $("#lv_info").hide();
+            }
+            
+            $.ajax({
+                type: "post",
+                url: "{:U('ToolsApply/getApplyDetail')}",
+                dataType: "json",
+                data: {
+                    tid: tid
+                },
+                cache: false,
+                beforeSend: function(){
+                    $(".overlay").show();
+                },
+                complete: function(){
+                    $(".overlay").hide();
+                },
+                success: function(data){
+					if(data.status==0){
+						alert(data.info);return false;
+					}
+					
+                    if (data.moneyList !=null) {
+                        $("#f_gold").html(data.moneyList["t_gold"]);
+                        $("#f_copper").html(data.moneyList["t_copper"]);
+                        if (data.moneyList["t_minlv"] == '0') {
+                            data.moneyList["t_minlv"] = "无限制"
+                        }
+                        if (data.moneyList["t_maxlv"] == '0') {
+                            data.moneyList["t_maxlv"] = "无限制"
+                        }
+                        if (data.moneyList["t_endtime"] == '0') {
+                            data.moneyList["t_endtime"] = "系统默认"
+                        }
+                        
+                        $("#t_minlv").html(data.moneyList["t_minlv"]);
+                        $("#t_maxlv").html(data.moneyList["t_maxlv"]);
+                        $("#t_endtime").html(data.moneyList["t_endtime"]);
+                    }
+                    
+                    if (data.toolList ==null) {
+						$("#form_tools").html("<tr><td colspan='7'>没有记录！</td></tr>");
+                    }else {
+                        var html = "";
+                        for (var i in data.toolList) {
+                            html += "<tr>";
+                            html += "<td>" + data.toolList[i]["t_tid"] + "</td>";
+                            html += "<td>" + data.toolList[i]["t_name"] + "</td>";
+                            html += "<td>" + data.toolList[i]["t_num"] + "</td>";
+                            html += "<td>" + data.toolList[i]["t_bstatus"] + "</td>";
+                            html += "</tr>";
+                        }
+                        $("#form_tools").html(html);
+                    }
+                    
+                    $("#form").dialog({
+                        height: 500,
+                        width: 700,
+                        buttons: {
+                            "关闭": function(){
+                                $(this).dialog("close");
+                            }
+                        }
+                    })
+                },
+                error: function(){
+                    alert("获取申请详细，请求失败");
+                }
+            })
+        });
+		
+        //提交申请
+        $("#apply").click(function(){
+			//定时任务时间
+            if ($("#task").is(":checked")) {
+                var tasktime = $("#tasktime").val();
+				if(tasktime<curentTime()){
+					alert('定时任务时间错误');return false;
+				}
+            }else {
+                var tasktime = 0;
+            }
+			
+            var state = $(':radio[name="rad"]:checked').val();//目标用户：1全部，2离线，3在线
+            var rolename = $("#rolename").val(); //角色名
+            var serverId = $("#serverId").val(); //服务器
+            var reason = $("#reason").val(); //发送原因
+            var title = $("#title").val() //标题
+            var content = $("#content").val() //信件内容	
+            var gold = $("#gold").val(); //元宝
+            var copper = $("#copper").val(); //铜币
+            var srole = $('#srole').val(); //全服和角色切换
+            var minLv = $('#minLv').val();
+            var maxLv = $('#maxLv').val();
+            var emailTime = $('#emailTime').val();
+            var day = $('#day').val();
+            var fakermb = $("#fakermb").val();
+            if ("" == rolename && '1' == srole) {
+                alert("请输入角色名！");
+                return false;
+            }else if (("" != $("#toolsId").val()) && ($("#toolsBody").children().length < 1)) {
+                    alert("请先添加道具");
+                    return false
+            }else if ("" != gold || "" != copper) {
+            	if (parseInt(gold) > 100000000 || parseInt(copper) > 100000000) {
+            		alert("元宝和铜币的最大值为100000000");
+                	return false
+             	}
+            }
+			
+			if(gold==''&&copper==''&&($("#toolsBody").children().length < 1)){
+				alert('申请内容不能为空');return false;
+			}
+            
+            var toolList = []; //道具列表
+            if ($("#toolsBody").children().length > 0) {
+                $("#toolsBody").children().each(function(){
+                    var tool = {};
+                    tool.toolId = $(this).find(".tId").html(); //道具ID
+                    tool.toolName = $(this).find(".tName").html(); //道具名称
+                    tool.toolNum = $(this).find(".tNum").html(); //数量
+                    tool.toolBind = $(this).find(".bdGroup").html(); //绑定状态
+                    toolList.push(tool);
+                })
+            }
+            
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: "{:U('ToolsApply/applyAdd')}",
+                data: {
+                    rolename: rolename,
+                    serverId: serverId,
+                    reason: reason,
+                    title: title,
+                    content: content,
+                    gold: gold,
+                    copper: copper,
+                    toolList: toolList,
+                    srole: srole,
+                    minLv: minLv,
+                    maxLv: maxLv,
+                    emailTime: emailTime,
+                    tasktime: tasktime,
+                    state: state,
+                    fakermb: fakermb,
+                    day: day
+                },
+                beforeSend: function(){
+                    $(".overlay").show();
+                },
+                complete: function(){
+                    $(".overlay").hide();
+                },
+                success: function(data){
+					alert(data.info);
+                    if(data.status){
+						window.location.reload();
+					}
+                },
+                error: function(){
+                    alert("error");
+                }
+            })
+        });
+		
+        //全服和角色切换
+        $('#srole').change(function(){
+            var srole = $('#srole').val();
+            if ('1' == srole) {
+                $('#rolename').val("");
+                $('#rolename').removeAttr("disabled");
+                $('#rolename').css("background-color", "#FFFFFF");
+                $('#level_info').hide();
+				$('#fakermbtr').show();
+            }else if ('2' == srole) {
+                    $('#rolename').val("");
+                    $('#rolename').attr("disabled", "disabled");
+                    $('#rolename').css("background-color", "#CCCCCC");
+                    $('#level_info').show();
+					$('#fakermbtr').hide();
+                }
+        });
+		
+        //增加超链接
+        $("#addlink").click(function(){
+            var obj = $("#content").selection();
+            var select_text = obj["text"]; //textarea选中文本
+            var start = obj["start"]; //选中文本初始位置
+            var end = obj["end"]; //选择文本结束位置
+            $("#e_text").val("");
+            $("#e_link").val("http://");
+            $("#e_text").val(select_text);
+            
+            $("#lform").dialog({
+                height: 200,
+                width: 550,
+                buttons: {
+                    '确认': function(){
+                        var textarea_val = $("#content").val();
+                        var f_part = textarea_val.substring(0, start);
+                        var l_part = textarea_val.substring(end);
+                        var text = $("#e_text").val();
+                        var link = $("#e_link").val();
+                        var color = $("#s_temp").val();
+                        var replace_text = "<font color='" + color + "'><a href='" + link + "' target='_blank'><u>" + text + "</u></a></font>";
+                        var new_text = f_part + replace_text + l_part;
+                        if(text==''){
+							alert('链接文字不能为空！');return false;
+						}
+					   
+					    $("#content").val(new_text);
+                        $(this).dialog("close");
+                        
+                        if ($("#content")[0].selectionStart != "undefined") {
+                            $("#content").focus();
+                            $("#content")[0].selectionStart = start + replace_text.length;
+                            $("#content")[0].selectionEnd = start + replace_text.length;
+                        }
+                    },
+                    '取消': function(){
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+	
+    });
+	
+	//显示道具申请列表
+	function applyList(page){
+		$.ajax({
+			type:"POST",
+			dataType:"json",
+			url:"{:U('ToolsApply/getApplyData')}",
+			data:
+			{
+				serverId : $("#serverId").val(),
+				pageSize : $("#menu").val(),
+				curPage : page
+			},
+			cache : false,
+			beforeSend:function(){
+				$("#example_length").hide();//显示每页
+				$("#askBody").html("<tr><td colspan='10'><img src='__IMG__/loading.gif'/></td></tr>");
+			},
+			success:function(data){
+				if(data.status==0){
+					alert(data.info);return false;
+				}
+				
+				var list = data.applyList;
+				var serverList = data.serverList;
+				if(list != null ){
+					var tbody = "";
+					for(var i in list){
+						var model = "noclass";
+						switch(parseInt(list[i]["t_status"])){
+							case 1: 
+								list[i]["t_status"] = "申请中...<br/><a href='javascript:void(0)' class='cancle_ask'>取消申请</a>";
+								break;
+							case 2: 
+								list[i]["t_status"] = "申请不通过";
+								model="fail";
+								break;
+							case 3:
+								list[i]["t_status"] = "已通过但发送失败";
+								model="fail";
+								break;
+							case 4:	
+								list[i]["t_status"] = "已通过并发送成功";
+								model="pass";
+								break;
+							case -1:	
+								list[i]["t_status"] = "申请人取消申请";
+								model="pass";
+								break;	
+							case -2:	
+								list[i]["t_status"] = "正在处理";
+								model="pass";
+								break;	
+							default: 
+								list[i]["t_status"] = "未知";
+								model="fail";
+						}
+						switch(parseInt(list[i]["t_result"])){
+							case -1: 
+								list[i]["t_result"] = "正在申请";
+								break;
+							case 0: 
+								list[i]["t_result"] = "正在处理";
+								break;
+							case 1: 
+								list[i]["t_result"] = "处理成功";
+								break;
+							default: 
+								list[i]["t_result"] = "处理失败";
+								break;
+						}
+						
+						tbody += "<tr tid='"+list[i]["t_id"]+"'>";
+						tbody += "<td>"+serverList[list[i]["t_ip"]]['g_name']+"</td>";
+						tbody += "<td>"+list[i]["t_role_name"]+"</td>";
+						tbody += "<td>"+list[i]["t_inserttime"]+"</td>";
+						tbody += "<td class='tdetial'>明细</td>";
+						tbody += "<td>"+list[i]["t_title"]+"</td>";
+						tbody += "<td>"+list[i]["t_content"]+"</td>";
+						tbody += "<td>"+list[i]["t_reason"]+"</td>";
+						tbody += "<td class='"+model+"'>"+list[i]["t_status"]+"</td>";
+						tbody += "<td>"+list[i]["t_result"]+"</td>";
+						tbody += "<td>"+list[i]["CmCmdResult"]+"</td>";
+						tbody += "<td>"+list[i]["t_operaor"]+"</td>";
+						tbody += "<td>"+list[i]["t_auditor"]+"</td>";
+						tbody += "</tr>";
+					}
+					$('.tdetial').bind('click');
+					$('.cancle_ask').bind('click');
+					
+					$("#askBody").html(tbody);
+					$("#askBody tr:odd").css("background-color", "#edf2f7"); 
+					$("#askBody tr:even").css("background-color","#e0f0f0"); 
+					$("#example_length").show();//显示每页
+					$("#pagehtml").html(data.pageHtml);
+				}else{
+					$("#askBody").html("<tr><td colspan='10'>没有数据！</td></tr>");
+				}
+			},
+			error:function(){
+				$("#askBody").html("<tr><td colspan='10'>没有数据！</td></tr>");
+			}
+		});
+	}
+	
+    //跳到相应页面 
+    function go(){
+        var pagenum = $("#page").val();
+        if (pagenum == '' || isNaN(pagenum) || pagenum <= 0) {
+            alert('请输入一个正整数！');
+            $("#page").val(1);
+        }
+        else {
+            applyList(pagenum);
+        }
+    }
+	
+    $.fn.selection = function(){
+        var s, e, range, stored_range;
+        if (this[0].selectionStart == "undefined") {
+            var selection = document.selection;
+            if (this[0].tagName.toLowerCase() != "textarea") {
+                var val = this.val();
+                range = selection.createRange().duplicate();
+                range.moveEnd("character", val.length);
+                s = (range.text == "" ? val.length : val.lastIndexOf(range.text));
+                range = selection.createRange().duplicate();
+                range.moveStart("character", -val.length);
+                e = range.text.length;
+            }
+            else {
+                range = selection.createRange(), stored_range = range.duplicate();
+                stored_range.moveToElementText(this[0]);
+                stored_range.setEndPoint('EndToEnd', range);
+                s = stored_range.text.length - range.text.length;
+                e = s + range.text.length;
+            }
+        }
+        else {
+            s = this[0].selectionStart, e = this[0].selectionEnd;
+        }
+        var te = this[0].value.substring(s, e);
+        return {
+            start: s,
+            end: e,
+            text: te
+        };
+    };
+	
+	
+	
+	//跳到相应页面 (道具ID与名称关系)
+	function go1(){
+		var pagenum = $("#page1").val();
+		if(pagenum=='' || isNaN(pagenum) || pagenum <= 0){
+			alert('请输入一个正整数！');
+			$("#page1").val(1);
+		}else{
+			getToolsList(pagenum);
+		}
+	}
+	
+	//道具ID点击事件
+	$("#tools_icon").click(function(){	
+		getToolsList(1);
+	});
+	
+	//道具搜索
+	$("#toolSearch").click(function(){
+		getToolsList(1);
+	});
+	
+    //获取道具ID与道具名称数据
+    function getToolsList(page){
+        $.ajax({
+            type: "post",
+            url: "{:U('ToolsApply/getToolsList')}",
+            dataType: "json",
+            data: {
+                searchKey: $("#searchKey").val(),
+                type1: $("#t_type1").val(),
+                type2: $("#t_type2").val(),
+                type3: $("#t_type3").val(),
+                pageSize: 10,
+                curPage: page,
+            },
+            cache: false,
+            success: function(data){
+                if (data.list!=null) {
+                    var html = "";
+                    var type1_html = "<option value=''>请选择</option>";
+                    
+                    var type1_map = data.type1_map;
+                    var type2_map = data.type2_map;
+                    var type3_map = data.type3_map;
+                    
+                    for (var i in type1_map) {
+                        type1_html += "<option value='" + i + "'>" + type1_map[i] + "</option>";
+                    }
+                    
+                    if ($("body").data('type1_map') != '1') {
+                        $("#t_type1").html(type1_html);
+                    }
+                    
+                    $("body").data('type1_map', '1');
+                    $("body").data('type2_map', type2_map);
+                    $("body").data('type3_map', type3_map);
+                    
+                    for (var i in data.list) {
+						var type2_name = '';
+                        var type3_name = '';
+						if(typeof(type2_map[data.list[i]["t_type1"]])=='undefined'){
+							type2_name = '未知';
+						}else if(typeof(type2_map[data.list[i]["t_type1"]][data.list[i]["t_type2"]])=='undefined'){
+							type2_name = '未知';
+						}else {
+							type2_name = type2_map[data.list[i]["t_type1"]][data.list[i]["t_type2"]];
+						}
+                        //var type2_name = type2_map[data.list[i]["t_type1"]][data.list[i]["t_type2"]];
+                        var type3_name = '';
+                       if(typeof(type3_map[data.list[i]["t_type1"]]) == 'undefined'){ 
+					   	type3_name = '未知';
+                       }else if (typeof(type3_map[data.list[i]["t_type1"]][data.list[i]["t_type2"]]) == 'undefined') {
+                            type3_name = '未知';
+                        }
+                        else 
+                            if (typeof(type3_map[data.list[i]["t_type1"]][data.list[i]["t_type2"]][data.list[i]["t_type3"]]) == 'undefined') {
+                                type3_name = '未知';
+                            }
+                            else {
+                                type3_name = type3_map[data.list[i]["t_type1"]][data.list[i]["t_type2"]][data.list[i]["t_type3"]];
+                            }
+                        
+                        if (typeof(type2_name) == 'undefined') {
+                            type2_name = '未知';
+                        }
+                        
+                        html += "<tr>";
+                        html += "<td class='t_code'>" + data.list[i]["t_code"] + "</td>";
+                        html += "<td class='t_name'>" + data.list[i]["t_name"] + "</td>";
+                        html += "<td>" + type1_map[data.list[i]["t_type1"]] + "</td>";
+                        html += "<td>" + type2_name + "</td>";
+                        html += "<td>" + type3_name + "</td>";
+                        html += "<td><span class='choose'>选择</span></td>";
+                        html += "</tr>";
+                    }
+                    $("#dform_body").html(html);
+                    $("#pagehtml2").html(data.pageHtml);
+                }
+                else {
+                    $("#pagehtml2").html("");
+                    $("#dform_body").html("<tr><td colspan='8'>没有记录！</td></tr>");
+                }
+                
+                $("#dform").dialog({
+                    height: 500,
+                    width: 1140,
+                    buttons: {
+                        "关闭": function(){
+                            $(this).dialog("close");
+                        }
+                    }
+                })
+            },
+            error: function(){
+                alert("error");
+            }
+        })
+    }
+	
+	var i = 0;//道具记录（最多只能添加5个道具）
+		
+		//添加道具
+		$("#addTools").click(function(){
+			var toolsId = $("#toolsId").val();
+			var toolsName = $("#tolName").val();
+			var toolsNum = $("#toolsNum").val();
+			var bdGroup = $("#bdGroup").val();
+			
+			if(i>2){
+				alert("道具最多为3个!");
+				return false;
+			}else if("" == toolsId){
+				alert("请输入道具ID！");
+				return false;
+			}else if( isNaN(toolsId) || isNaN(toolsNum)){
+				alert("请输入数字！");
+				return false;
+			}else if("" == toolsNum){
+				alert("请输入申请数量！");
+				return false;
+			}else if(isNaN($("#toolsId").val())){
+				alert("申请数量请输入数字！");
+				return false;
+			}else if(toolsNum > 99){
+				alert("单个道具申请不能超过99！");
+				return false;
+			}
+			
+			var html = "";
+			html += "<tr>";
+			html += "<td class='tId'>"+toolsId+"</td>";
+			html += "<td class='tName'>"+toolsName+"</td>";
+			html += "<td class='tNum'>"+toolsNum+"</td>";
+			html += "<td class='bdGroup'>"+bdGroup+"</td>";
+			html += "<td class='dtool'>删除</td>";
+			html += "</tr>";
+			
+			$("#tool_table").show();
+			$("#toolsBody").append(html);
+			i++;
+		})
+		
+	//删除道具
+	$(".dtool").live("click",function(){
+		var dom = this;
+		$(dom).parent().remove();;
+		i--;
+		if(i== 0) {
+			$("#tool_table").hide();
+		}
+	});
+
+	$("#t_type1").change(function(){
+		var select_value = $("#t_type1").val();
+		if(select_value != '') {
+			var type2_map = $("body").data("type2_map");
+			var list  = type2_map[select_value];
+			var type2_html = "<option value=''>请选择</option>";
+			for(var i in list) {
+				type2_html += "<option value='"+ i +"'>" + list[i] + "</option>";
+			}
+			$("#t_type2").html(type2_html);
+		}
+	})
+	
+	$("#t_type2").change(function(){
+		var type1_value = $("#t_type1").val();
+		var select_value = $("#t_type2").val();
+		if(select_value != '') {
+			var type3_map = $("body").data("type3_map");
+			var list  = type3_map[type1_value][select_value];
+			var type3_html = "<option value=''>请选择</option>";
+			for(var i in list) {
+				type3_html += "<option value='"+ i +"'>" + list[i] + "</option>";
+			}
+			$("#t_type3").html(type3_html);
+		}
+	})
+
+	//选择道具
+	$(".choose").live("click",function(){
+		var code = $(this).parent().parent().find(".t_code").html();	//道具ID
+		var name = $(this).parent().parent().find(".t_name").html();	//道具名称
+		
+		$("#tolName").val(name);
+		$("#toolsId").val(code);
+		$("#toolsNum").val(1);
+		$("#dform").dialog("close");
+	})
+	
+	//取消申请
+	$(".cancle_ask").live('click', function(){
+		var tid = $(this).parents('tr').attr('tid');
+		$.ajax({
+			type : 'post',
+			url : '{:U("ToolsApply/applyCancel")}',
+			dataType : 'json',
+			data : {
+				tid : tid
+			},
+			beforeSend : function(){
+				$(".overlay").show();
+			},
+			complete : function(){
+				$(".overlay").hide();
+			},
+			success : function(data){
+				alert(data.info);
+				if(data.status){
+					window.location.reload();
+				}
+			},
+			error : function(){
+				alert('请求失败');
+			}
+		})
+	})
+		
+	</script>
+</body>
+</html>

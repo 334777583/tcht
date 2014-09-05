@@ -1,0 +1,260 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>游戏聊天监控</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link href="__CSS__/skin.css" rel="stylesheet" type="text/css">
+<link href="__CSS__/jquery-ui.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+<!--
+body {
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	background-color: #EEF2FB;
+	font-size: 12px;
+}
+-->
+</style>
+</head>
+<body>
+	<div>
+		<div>
+			<div>
+				<table class="explain">
+					<thead>
+					</thead>
+					<tbody style="font-family: Mingliu">
+						<tr>
+							<td width="5%" class="tableleft">
+								<b>说明：</b>
+							</td>
+						</tr>
+						<tr>
+							<td width="95%" class="tableleft">1、开始位置为从文件底部开始算起的行数</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="topinfo">
+				<div>
+					查看聊天类型：
+					<input type="checkbox" name="chatType[]" checked="checked"
+						value="0" />
+					私聊
+					<input type="checkbox" name="chatType[]" checked="checked"
+						value="1" />
+					队伍
+					<input type="checkbox" name="chatType[]" checked="checked"
+						value="2" />
+					帮派
+					<input type="checkbox" name="chatType[]" checked="checked"
+						value="3" />
+					世界
+					<input type="checkbox" name="chatType[]" checked="checked"
+						value="10" />
+					国家聊天
+					<!--目前只输出 私聊 帮派 世界 国家聊天 组队
+					<input type="checkbox" name="chatType[]" value="4"/>喇叭
+					<input type="checkbox" name="chatType[]" value="5"/>系统
+					<input type="checkbox" name="chatType[]" value="6"/>中央屏幕
+					<input type="checkbox" name="chatType[]" value="7"/>好友聊天
+					<input type="checkbox" name="chatType[]" value="8"/>陌生人消息
+					<input type="checkbox" name="chatType[]" value="9"/>场景聊天
+					<input type="checkbox" name="chatType[]" value="11"/>传闻(强化)
+					<input type="checkbox" name="chatType[]" value="12"/>组队招募广播
+					--->
+					<br />
+					<br />
+				</div>
+				<div>
+					<label>
+						<span>服务器:</span>
+						<select id="serverId">
+							<volist name="serverList" id="sl">
+							<option value="{$sl['g_id']}">{$sl['g_name']}</option>
+							</volist>
+							<option value="0">全部</option>
+						</select>
+					</label>
+					日期
+					<input type="text" class="input1" id="startdate" value="{$today}" />
+					开始位置
+					<input type="text" value="0" id="start" />
+					查看数量
+					<select id="chatnum">
+						<option value="100">100</option>
+						<option value="200">200</option>
+						<option value="300">300</option>
+						<option value="400">400</option>
+						<option value="500">500</option>
+					</select>
+					<input type="button" value="查询" id="history" style="margin-left: 20px" />
+				</div>
+			</div>
+
+			<div style="clear: both"></div>
+
+			<div id="tabs-1" class="tabitem">
+				<div>
+					<table class="mytable" cellspacing="0" align="center" id="dtable">
+						<thead>
+							<tr>
+								<th width="60">聊天频道</th>
+								<th width="60">玩家id</th>
+								<th width="120">角色名</th>
+								<th>说话内容</th>
+								<th width="110">时间</th>
+								<th width="100">操作</th>
+							</tr>
+						</thead>
+						<tbody id="dtatr_body">
+						</tbody>
+					</table>
+
+					<div id="pagehtml" style="float: right; margin-right: 20px"></div>
+				</div>
+
+			</div>
+
+			<div style="clear: both"></div>
+		</div>
+
+		<div style="height: 50px">&nbsp;</div>
+
+	</div>
+
+		<!-- 服务器 -->
+        <div id="sform" style="display:none">
+            <div class="ajaxform">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+				<tr>
+					<td>
+					<volist name="serverList" id="sld" key="k">
+                        <if condition="$k%5 eq 0">
+                            <br/>
+                            <br/>
+                        </if>
+                        <input type="radio" name="db" value="{$sld['g_id']}" class="cbox" id="s{$k}"/>
+                        <label for="s{$k}">
+                            {$sld['g_name']}
+                        </label>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    </volist>
+					</td>
+				</tr>
+                </table>
+            </div>
+        </div>
+
+	<script src="__STATIC__/jquery.js" type="text/javascript">
+    </script>
+	<script src="__JS__/jquery-ui.js" type="text/javascript">
+    </script>
+	<script src="__JS__/function.js" type="text/javascript">
+    </script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			showTitle("GM工具:聊天监控");
+			
+			$("#startdate").datepicker();
+			$('#history').click(function(){
+					show();
+			});
+			
+            $("#serverId").change(function(){
+                if ($("#serverId").val() == 0) {
+                    $("#sform").dialog({
+                        height: 500,
+                        width: 700,
+                        buttons: {
+                            "确认": function(){
+                                var item = $(':radio[name="db"]:checked').val();
+                                $("#serverId").val(item);
+                                $(this).dialog("close");
+                            },
+                            "关闭": function(){
+                                $(this).dialog("close");
+                            }
+                        }
+                    })
+                }
+            });
+			
+		});
+		
+		function show(){
+			var checked = [];
+		    $('input:checkbox:checked').each(function() {
+		            checked.push($(this).val());
+		    });
+			$.ajax({
+					type: 'POST',
+					url: '{:U("ChatQuery/getChatContents")}',
+					dataType: 'json',
+					data: {
+						serverId: $("#serverId").val(),
+						chatnum:$("#chatnum").val(),
+						chatType:checked,
+						start:$('#start').val(),
+						startdate:$('#startdate').val()
+					},
+					beforeSend: function(){
+						$("#dtatr_body").html("<tr><td colspan='6'><img src='__IMG__/loading.gif'/></td></tr>");
+					},
+					success: function(data){
+						var list = data.list;
+						if (list!=''&&list!=null) {
+							var tbody = "";
+							var url = '';
+							for (var i in list) {
+								tbody += "<tr>";
+								tbody += "<td>" + list[i]["channel"] + "</td>";
+								tbody += "<td>" + list[i]["playid"] + "</td>";
+								tbody += "<td>" + list[i]["send_name"] + "</td>";
+								tbody += "<td>" + list[i]["content"] + "</td>";
+								tbody += "<td>" + list[i]["date"] + "</td>";
+//								tbody += "<td><a href='javascript:;' class='djbt' roleid="+list[i]['playid']+" rolename="+list[i]["send_name"]+">冻结</a>&nbsp;&nbsp;";
+//								tbody += "<a href='javascript:;' class='xxbt' roleid="+list[i]['playid']+" rolename="+list[i]["send_name"]+">下线</a>&nbsp;&nbsp;";
+//								tbody += "<a href='javascript:;' class='jybt' roleid="+list[i]['playid']+" rolename="+list[i]["send_name"]+">禁言</a></td>";
+								if(list[i]['status']){
+									tbody += "<td>已冻结</td>";
+								}else {
+									tbody +="<td><a href='javascript:;' class='killPlayer' roleid="+list[i]['playid']+" rolename="+list[i]["send_name"]+">冻结并下线</a>&nbsp;&nbsp;";
+								}
+								tbody += "</tr>";
+							}
+							$("#dtatr_body").html(tbody);
+							$("#dtatr_body tr:odd").css( "background-color", "#e0f0f0");
+							
+				          	//冻结并下线
+				    		$('.killPlayer').click(function(){
+				    			var roleid = $(this).attr('roleid');
+				    			var rolename = $(this).attr('rolename');
+				    			var serverId = $("#serverId").val();
+				    			var obj = $(this);
+				    			
+								$.post('{:U("ChatQuery/killPlayer")}', {
+										roleid : roleid,
+										rolename : rolename,
+										serverId : serverId
+									}, function(data) {
+										obj.parents('td').html(data.info);
+									}, 'json');
+
+								});
+							} else {
+								$("#dtatr_body").html("<tr><td colspan='6'>没有数据！</td></tr>");
+							}
+						},
+						error : function() {
+							$("#dtatr_body").html("<tr><td colspan='6'>请求失败！</td></tr>");
+						}
+					});
+		}
+	</script>
+</body>
+</html>

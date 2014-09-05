@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>公告管理</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link href="__CSS__/skin.css" rel="stylesheet" type="text/css">
+        <link href="__CSS__/jquery-ui.css" rel="stylesheet" type="text/css">
+        <style type="text/css">
+        <!--body {
+            margin-left: 0px;
+            margin-top: 0px;
+            margin-right: 0px;
+            margin-bottom: 0px;
+            background-color: #EEF2FB;
+            font-size: 12px;
+        }
+        -->
+        </style>
+    </head>
+    <body>
+        <div>
+            <div id="tabs-1" class="tabitem">
+                <div>
+                    <table class="explain">
+                        <thead>
+                        </thead>
+                        <tbody style="font-family:Mingliu">
+                            <tr>
+                                <td width="5%" class="tableleft">
+                                    <b>说明：</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="95%" class="tableleft">
+                                    1、支持全服发送，全服发送的时候会给每个服务器发送一条公告，请谨慎操作
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <table class="toptable">
+                        <thead>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="5%" class="tableright">
+                                    <span>服务器：</span>
+                                </td>
+                                <td width="95%" class="tableleft">
+                                    <select id="serverId">
+                                        <volist name="serverList" id="sl">
+                                            <option value="{$sl['g_id']}">{$sl['g_name']}</option>
+                                        </volist>
+                                        <option value="0">全部</option>
+                                    </select>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+									<input type="checkbox" id="task">定时发送:
+									<input type="text" id="timer" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1" onblur="this.className='input-text'" onfocus="this.className='input-text-bor'">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="5%" class="tableright">
+                                    <span>发送类型：</span>
+                                </td>
+                                <td width="95%" class="tableleft">
+                                    <select id="stype">
+                                        <!--<option value="1">即时消息</option>-->
+                                        <option value="8">全服系统公告</option>
+										<option value="9">全服滚动公告</option>
+                                        <option value="10">全服弹窗公告</option>
+                                    </select>
+                                    <input value="生成" type="submit" id="botton" style="display:none"/><input type="button" value="游戏预览" id="html_page" style="display:none"/>
+                                </td>
+                            </tr>
+                            <tr class="timeinfo">
+                                <td width="5%" class="tableright">
+                                    <span>时间间隔：</span>
+                                </td>
+                                <td width="95%" class="tableleft">
+                                    <select id="interval">
+                                        <option value="0">不循环</option>
+                                        <option value="1">1分钟</option>
+                                        <option value="2">2分钟</option>
+                                        <option value="3">3分钟</option>
+                                        <option value="4">4分钟</option>
+                                        <option value="5">5分钟</option>
+                                        <option value="10">10分钟</option>
+                                        <option value="15">15分钟</option>
+                                        <option value="20">20分钟</option>
+                                        <option value="25">25分钟</option>
+                                        <option value="30">30分钟</option>
+                                        <option value="60">60分钟</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="timeinfo" id="time_range" style="display:none">
+                                <td width="5%" class="tableright">
+                                    <span>时间段：</span>
+                                </td>
+                                <td width="95%" class="tableleft">
+                                    <input type="text" id="starttime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1"/>
+									至<input type="text" id="endtime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1"/>
+                                </td>
+                            </tr>
+                            <tr class="timeinfo" style="display:none" id="body_se">
+                                <td width="5%" class="tableright">
+                                    <span>设置：</span>
+                                </td>
+                                <td width="95%" class="tableleft">
+                                    宽度：<input name="b_width" size='6' class="input1" value="450" />
+									px&nbsp;&nbsp;&nbsp;高度：
+									<input name="b_hegiht" size='6' class="input1" value="500" />
+									px&nbsp;&nbsp;&nbsp;背景设置：
+									<input id="color" name="b_color" size='40' class="input1" value="background-color:#FFFFFF;" />
+									<input type="button" value="打开取色器" />
+									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									<input value="生成" type="submit" id="botton" />
+                                </td>
+                            </tr>
+                            <tr id="new_content">
+                                <td width="5%" class="tableright">
+                                    <span>消息内容：</span>
+                                </td>
+                                <td width="95%" class="tableleft">
+                                    <label>
+                                        <textarea cols="100" rows="2" class="input1" id="content"></textarea>
+                                    </label>
+                                </td>
+                            </tr>
+							<tr>
+								<td colspan="2">
+                                    <label class="link">
+                                        <input type="button" value="增加超链接" id="addlink"/>
+                                    </label>
+									<input type="button" value="提交" id="commit"/>
+								</td>
+							</tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style='margin-top:20px'>
+                    <h3>历史操作：</h3>
+                    <table class="mytable">
+                        <thead>
+                            <tr>
+                                <th width="60">服务器</th>
+                                <th width="80">消息类型</th>
+                                <th width="60">开始日期</th>
+                                <th width="60">结束日期</th>
+                                <th width="60">时间间隔</th>
+                                <th>内容</th>
+                                <th width="60">编辑日期</th>
+                                <th width="60">操作人</th>
+                                <th width="60">请求状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="newtable">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pagehtml" style="float:right;margin-right:20px">
+                </div>
+                <div id="example_length" class="dataTables_length" style="display:none">
+                    <label>
+                        每页显示
+                        <select id="menu" name="example_length" size="1" aria-controls="example">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        条记录
+                    </label>
+                </div>
+                <input type="hidden" value="" id="ids"/>
+            </div>
+        </div>
+		
+        <div id="form" style="display:none">
+            <div class="ajaxform">
+                <table width="90%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+                    <tbody>
+                        <tr>
+                            <td width="20%" align="right">
+                                文字：
+                            </td>
+                            <td width="30%">
+                                <input type="text" class="input1" id="e_text">
+                            </td>
+                            <td width="30%">
+                                <span style="color:red">注：文字不能为空</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">
+                                链接：
+                            </td>
+                            <td>
+                                <input type="text" class="input1" id="e_link" value="http://">
+                            </td>
+                            <td>
+                                &nbsp;
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <input type="hidden" id="s_temp" value="#00FFFF"/>
+            </div>
+        </div>
+		
+		<!-- 服务器 -->
+        <div id="sform" style="display:none">
+            <div class="ajaxform">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
+				<tr>
+					<td>
+					<volist name="serverList" id="sld" key="k">
+                        <if condition="$k%5 eq 0">
+                            <br/>
+                            <br/>
+                        </if>
+                        <input type="radio" name="db" value="{$sld['g_id']}" class="cbox" id="s{$k}"/>
+                        <label for="s{$k}">
+                            {$sld['g_name']}
+                        </label>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    </volist>
+					</td>
+				</tr>
+                </table>
+            </div>
+        </div>
+        
+        
+    </body>
+    <script src="__STATIC__/jquery.js" type="text/javascript">
+    </script>
+    <script src="__JS__/jquery-ui.js" type="text/javascript">
+    </script>
+    <script src="__JS__/function.js" type="text/javascript">
+    </script>
+    <script src="__STATIC__/My97DatePicker/WdatePicker.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            showTitle("GM工具:发送公告");
+			
+            $("#serverId").change(function(){
+                if ($("#serverId").val() == 0) {
+                    $("#sform").dialog({
+                        height: 500,
+                        width: 700,
+                        buttons: {
+                            "确认": function(){
+                                var item = $(':radio[name="db"]:checked').val();
+                                $("#serverId").val(item);
+								getNewsList(1);
+                                $(this).dialog("close");
+                            },
+                            "关闭": function(){
+                                $(this).dialog("close");
+                            }
+                        }
+                    })
+                }else {
+					getNewsList(1);
+				}
+            });
+			
+			$("#menu").change(function(){
+				getNewsList(1);
+			});
+			getNewsList(1);
+			
+            //提交 
+            $("#commit").click(function(){
+                //定时发送时间
+                if ($("#task").is(":checked")) {
+                    var tasktime = $("#timer").val();
+                    if (tasktime == '') {
+                        alert('请选择定时时间');
+                        return false;
+                    }
+                }else {
+                    var tasktime = 0;
+                }
+				
+                var serverId = $("#serverId").val();
+                var type = $("#stype").val();
+                var content = $("#content").val();
+                var interval = $("#interval").val();
+                if (interval > 0) {
+                    var starttime = $("#starttime").val();
+                    var endtime = $("#endtime").val();
+                    if (endtime == "") {
+                        alert("请输入结束时间!");
+                        return false;
+                    }else if (starttime == "") {
+                            alert("请输入开始时间!");
+                            return false;
+                    }else if (endtime < starttime) {
+                            alert("结束时间要大于开始时间");
+                            return false;
+                    }
+                    
+                    if (tasktime > endtime) {
+                        alert("结束时间要大于定时时间");
+                        return false;
+                    }
+                }else{
+					var starttime = 0;
+                    var endtime = 0;
+				}
+                if (content == '') {
+                    alert('请输入发送内容');
+                    return false;
+                }
+                
+                $.post('{:U("News/sendNews")}', {
+                    serverId: serverId,
+                    type: type,
+                    starttime: starttime,
+                    endtime: endtime,
+                    tasktime: tasktime,
+                    interval: interval,
+                    content: content
+                }, function(data){
+                	alert(data.info);
+					if(data.status){
+						window.location.reload();
+					}
+                }, 'json');
+            });
+			
+            //显示公告循环时间选择
+            $('#interval').change(function(){
+                if ($(this).val() > 0) {
+                    $('#time_range').show();
+                }
+                else {
+                    $('#time_range').hide();
+                }
+            });
+            
+            //增加超链接
+            $("#addlink").click(function(){
+                var obj = $("#content").selection();
+                var select_text = obj["text"]; //textarea选中文本
+                var start = obj["start"]; //选中文本初始位置
+                var end = obj["end"]; //选择文本结束位置
+                $("#e_text").val("");
+                $("#e_link").val("http://");
+                $("#e_text").val(select_text);
+                
+                $("#form").dialog({
+                    height: 200,
+                    width: 550,
+                    buttons: {
+                        '确认': function(){
+                            var textarea_val = $("#content").val();
+                            var f_part = textarea_val.substring(0, start);
+                            var l_part = textarea_val.substring(end);
+                            var text = $("#e_text").val();
+                            var link = $("#e_link").val();
+                            var color = $("#s_temp").val();
+                            var replace_text = "<font color='" + color + "'><a href='" + link + "' target='_blank'><u>" + text + "</u></a></font>";
+                            var new_text = f_part + replace_text + l_part;
+                            if(text==''){
+								alert('链接文字不能为空！');return false;
+							}
+						   
+						    $("#content").val(new_text);
+                            $(this).dialog("close");
+                            
+                            if ($("#content")[0].selectionStart != "undefined") {
+                                $("#content").focus();
+                                $("#content")[0].selectionStart = start + replace_text.length;
+                                $("#content")[0].selectionEnd = start + replace_text.length;
+                            }
+                        },
+                        '取消': function(){
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+            
+            
+            
+        });
+        
+        $.fn.selection = function(){
+            var s, e, range, stored_range;
+            if (this[0].selectionStart == undefined) {
+                var selection = document.selection;
+                if (this[0].tagName.toLowerCase() != "textarea") {
+                    var val = this.val();
+                    range = selection.createRange().duplicate();
+                    range.moveEnd("character", val.length);
+                    s = (range.text == "" ? val.length : val.lastIndexOf(range.text));
+                    range = selection.createRange().duplicate();
+                    range.moveStart("character", -val.length);
+                    e = range.text.length;
+                }
+                else {
+                    range = selection.createRange(), stored_range = range.duplicate();
+                    stored_range.moveToElementText(this[0]);
+                    stored_range.setEndPoint('EndToEnd', range);
+                    s = stored_range.text.length - range.text.length;
+                    e = s + range.text.length;
+                }
+            }
+            else {
+                s = this[0].selectionStart, e = this[0].selectionEnd;
+            }
+            var te = this[0].value.substring(s, e);
+            return {
+                start: s,
+                end: e,
+                text: te
+            };
+        };
+		
+        //获取公告内容
+        function getNewsList(page){
+            var serverId = $("#serverId").val();
+			var page=page;
+			var pageSize=$('#menu').val();
+			
+			$("#example_length").hide();//显示每页
+			$("#pagehtml").html("");
+			
+            $.post('{:U("News/getNewsList")}', {
+                serverId: serverId,
+				curPage:page,
+				pageSize:pageSize
+            }, function(data){
+				var list = data.list;
+				var serverList = data.serverList;
+            	if(list != null &&list !=''){
+					var tbody = "";
+					for(var i in list){
+						tbody += "<tr>";
+						tbody += "<td>"+serverList[list[i]["n_ip"]]['g_name']+"</td>";
+						
+						if(list[i]["n_status"]==8){
+							tbody += "<td>全服系统公告</td>";
+						}else if(list[i]["n_status"]==9){
+							tbody += "<td>全服滚动公告</td>";
+						}else if(list[i]["n_status"]==10){
+							tbody += "<td>全服弹窗公告</td>";
+						}
+						
+						tbody += "<td>"+list[i]["n_starttime"]+"</td>";
+						tbody += "<td>"+list[i]["n_endtime"]+"</td>";
+						tbody += "<td>"+list[i]["n_interval"]+"s</td>";
+						tbody += "<td>"+list[i]["n_content"]+"</td>";
+						tbody += "<td>"+list[i]["n_date"]+"</td>";
+						tbody += "<td>"+list[i]["n_operaor"]+"</td>";
+						
+						if(list[i]["n_callstatus"]==1){
+							tbody += "<td>成功</td>";
+						}else if(list[i]["n_callstatus"]==2){
+							tbody += "<td><span style='color:red'>失败</span></td>";
+						}else if(list[i]["n_callstatus"]==0){
+							tbody += "<td><a href='javascript:;' onclick='suspendTask("+list[i]["n_id"]+")' style='color:red'>中止处理</a></td>";
+						}else if(list[i]["n_callstatus"]==-1){
+							tbody += "<td>已终止处理</td>";
+						}
+						
+						tbody += "</tr>";
+					}
+					
+					$("#newtable").html(tbody);
+					$("#newtable tr:odd").css("background-color", "#edf2f7"); 
+					$("#newtable tr:even").css("background-color","#e0f0f0"); 
+					$("#example_length").show();//显示每页
+					$("#pagehtml").html(data.pageHtml);
+				}else{
+					$("#newtable").html("<tr><td colspan='9'>没有数据！</td></tr>");
+				}
+            }, 'json');
+        }
+		  
+        //跳到相应页面 
+        var go = function(){
+            var pagenum = $("#page").val();
+            if (pagenum == '' || isNaN(pagenum) || pagenum <= 0) {
+                alert('请输入一个正整数！');
+                $("#npage").val(1);
+            }
+            else {
+                getNewsList(pagenum);
+            }
+        }
+		
+        //中止公告继续发送
+        function suspendTask(nid){
+			if(!confirm('您确定要中止该条公告？')){
+				return false;
+			}
+            $.post('{:U("News/suspendTask")}', {
+                'nid': nid
+            }, function(data){
+                alert(data.info);
+				if(data.status){
+					window.location.reload();
+				}
+            }, 'json');
+        }
+    </script>
+</html>

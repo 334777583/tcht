@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>开服设置</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link href="__CSS__/skin.css" rel="stylesheet" type="text/css">
+<link href="__CSS__/jquery-ui.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+<!--
+body {
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	background-color: #EEF2FB;
+	font-size: 12px;
+}
+-->
+</style>
+</head>
+<body>
+	<div>
+		<div>
+			<table class="explain">
+				<thead>
+				</thead>
+				<tbody style="font-family: Mingliu">
+					<tr>
+						<td width="5%" class="tableleft">
+							<b>说明：</b>
+						</td>
+					</tr>
+					<tr>
+						<td width="95%" class="tableleft">1、此页面用于开服时服务器配置</td>
+					</tr>
+					<tr>
+						<td width="95%" class="tableleft">1、配置优先域名，如果域名不存在，务必留空</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div style="float: right; margin-top: 10px;">
+			<img src="__IMG__/add-btn2.png" style="cursor: pointer;" id="addbtn" />
+		</div>
+		<div style="clear: both;"></div>
+		<div>
+			<table class="mytable" cellspacing="0" align="center">
+				<thead>
+					<tr>
+						<th>序号</th>
+						<th>域名</th>
+						<th>服务器IP</th>
+						<th>名称</th>
+						<th>更新时间</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<volist name="serverList" id="sl">
+					<tr id="{$sl['g_id']}">
+						<td>{$sl['g_id']}</td>
+						<td>{$sl['g_domain']}</td>
+						<td>{$sl['g_ip']}</td>
+						<td>{$sl['g_name']}</td>
+						<td>{$sl['g_inserttime']}</td>
+						<td>
+							<label class="editicon"></label>
+							<span class="editbtn">编辑</span>
+							<label class="deleteicon"></label>
+							<span class="deletebtn">删除</span>
+						</td>
+					</tr>
+					</volist>
+				</tbody>
+			</table>
+		</div>
+
+		<div id="form" style="display: none">
+			<div class="ajaxform">
+				<table width="80%" border="0" cellspacing="0" cellpadding="0"
+					style="table-layout: fixed;">
+					<tbody>
+						<tr>
+							<td align="right">名称：</td>
+							<td>
+								<input type="text" class="input-1" id="name">
+							</td>
+						</tr>
+						<tr>
+							<td align="right">域名：</td>
+							<td>
+								<input type="text" class="input-1" id="domain">
+							</td>
+						</tr>
+						<tr>
+							<td align="right">服务器IP：</td>
+							<td>
+								<input type="text" class="input-1" id="ip">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</div>
+
+	<script src="__STATIC__/jquery.js" type="text/javascript">
+    </script>
+	<script src="__JS__/jquery-ui.js" type="text/javascript">
+    </script>
+    <script src="__JS__/function.js" type="text/javascript">
+    </script>
+	<script type="text/javascript">
+	$(function(){
+		//table单双行交叉样式
+		$(".mytable tr:odd").css("background-color", "#edf2f7"); 
+		$(".mytable tr:even").css("background-color","#e0f0f0"); 
+		
+		showTitle("GM工具:开服设置");
+		
+		//编辑
+		$(".editbtn").live("click",function(){
+			var gid = $(this).parents('tr').attr("id");
+			$.post(
+					'{:U("NewGame/getById")}',
+					{
+						gid : gid,
+					},
+					function(data){
+						if(data.status){
+							$("#name").val(data['list']["g_name"]);
+							$("#ip").val(data['list']["g_ip"]);
+							$("#domain").val(data['list']["g_domain"]);
+							$("#port").val(data['list']["g_port"]);
+							$("#form").dialog({                                                                                                   
+								height: 300,
+								width: 400,
+								buttons: {
+									'保存' : function(){
+										$.post(
+											'{:U("NewGame/dbEditor")}',
+											{
+												gid : gid,
+												name : $("#name").val(),
+												ip : $("#ip").val(),
+												domain :  $("#domain").val()
+											},
+											function(data){
+												alert(data.info);
+												if(data.status){
+													window.location.reload();
+												}
+											},
+											'json'
+										)
+									},
+									'取消' : function(){
+										$(this).dialog("close");
+									}
+								}
+							});
+						}else{
+							alert("获取信息失败");
+						}
+					},
+					'json'
+			);
+		});
+		
+		//删除
+		$(".deletebtn").live("click",function(){
+			var gid = $(this).parents('tr').attr("id");
+			if(!confirm('您确定要删除该服务器吗？')){
+				return false;
+			}
+			$.post('{:U("NewGame/dbDelete")}',{gid:gid},function(data){
+				alert(data.info);
+				if(data.status){
+					window.location.reload();
+				}
+			},'json');
+		});
+		
+		
+		//添加 
+		$("#addbtn").click(function(){
+			$("#name").val("");
+			$("#ip").val("");
+			$("#domain").val("");
+			$("#form").dialog({
+				height: 300,
+				width: 400,
+				buttons: {
+					'确定' : function(){
+						$.post(
+							'{:U("NewGame/dbAdd")}',
+							{
+								name : $("#name").val(),
+								ip : $("#ip").val(),
+								domain : $("#domain").val()
+							},
+							function(data){
+								alert(data.info);
+								if(data.status){
+									window.location.reload();
+								}
+							},
+							'json'
+						);
+					},
+					'取消' : function(){
+						$(this).dialog("close");
+					}
+				}
+			});
+		});
+		
+	});
+	</script>
+</body>
+</html>
