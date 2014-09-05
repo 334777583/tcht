@@ -186,7 +186,7 @@ class gmnew{
 				$countdown = ceil((strtotime($this->endtime)-time())/60).'分后';
 				$this->content = str_replace('{countdown}',$countdown,$this->content);
 			}
-			$json = '{"cmd":"sysbroadtext","content":"' . $this->content . '","type":' . $this->type . '}';
+			$json = '{"cmd":"sysbroadtext","content":"' . trim($this->content) . '","type":' . $this->type . '}';
 			$insql = "INSERT INTO php_cmd(GmCmd,ServerId,time) VALUES ('" . addslashes ( $json ) . "','" . $ip . "','" . strtotime ( "now" ) . "')";
 			$ins = $Server->rquery ( $insql );
 			if ($this->interval==0){
