@@ -42,9 +42,7 @@
 						<span>服务器:</span>
 						<select id="sip">
 							<{foreach from=$ipList item=ip}>
-								<{if  $ip.s_id>1}>
-									<option value="<{$ip.s_id}>"><{$ip.s_name}></option>
-								<{/if}>
+								<option value="<{$ip.s_id}>"><{$ip.s_name}></option>
 							<{/foreach}>
 							<option value="0" >全部</option>
 						</select>
@@ -61,8 +59,8 @@
 						<thead>
 							<tr>
 								<th>服务器</th>
-								<th>总创角（去重）</th>
-								<th>滚服创角（去重）</th>
+								<th>总创角</th>
+								<th>滚服创角</th>
 								<th>滚服创角率</th>
 								<th>总付费数</th>
 								<th>滚服付费数</th>

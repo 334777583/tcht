@@ -52,12 +52,12 @@
 					</label>
 					<span>时间:</span>
 					<select id="date">
-						<option value='2014-07'>2014-07</option>
-						<option value='2014-08'>2014-08</option>
-						<option value='2014-09'>2014-09</option>
-						<option value='2014-10'>2014-10</option>
-						<option value='2014-11'>2014-11</option>
-						<option value='2014-12'>2014-12</option>
+						<option value='2014-07' <{if $today eq '2014-07'}>selected="selected"<{/if}>>2014-07</option>
+						<option value='2014-08' <{if $today eq '2014-08'}>selected="selected"<{/if}>>2014-08</option>
+						<option value='2014-09' <{if $today eq '2014-09'}>selected="selected"<{/if}>>2014-09</option>
+						<option value='2014-10' <{if $today eq '2014-10'}>selected="selected"<{/if}>>2014-10</option>
+						<option value='2014-11' <{if $today eq '2014-11'}>selected="selected"<{/if}>>2014-11</option>
+						<option value='2014-12' <{if $today eq '2014-12'}>selected="selected"<{/if}>>2014-12</option>
 					</select>
 					<input type="button" value="查询" id="jishi" style="margin-left:20px"/>
 				</div>

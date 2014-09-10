@@ -31,6 +31,7 @@ class dailyreport{
 	public function show(){
 		$ipList = parent::getIpList();
 		$this->assign("ipList",$ipList);
+		$this->assign('today',date('Y-m'));
 		$this->display("recharge/dailyreport");
 	}
 	

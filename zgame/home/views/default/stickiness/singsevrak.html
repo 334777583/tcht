@@ -61,12 +61,14 @@
 					<thead>
 						<tr class="jt_sort">
 							<th>排行</th>
-							<th>账号ID</th>
+							<th>账号</th>
 							<th>角色ID</th>
 							<th>角色</th>
 							<th id='level'>等级</th>
 							<th id='gold'>剩余元宝</th>
 							<th id='money'>充值金额</th>
+							<th>首创游戏服</th>
+							<th>首创时间</th>
 							<th>最后充值时间</th>
 							<th>注册时间</th>
 							<th>最后登录</th>
@@ -205,12 +207,14 @@
 							for(var i in result) {
 								tbody += "<tr>";
 								tbody += "<td>" + result[i]["sortValue"] + "</td>";
-								tbody += "<td>" + result[i]["AccountId"] + "</td>";
+								tbody += "<td>" + result[i]["account"] + "</td>";
 								tbody += "<td>" + result[i]["c_pid"] + "</td>";
 								tbody += "<td>" + result[i]["RoleName"] + "</td>";
 								tbody += "<td>" + result[i]["Level"] + "</td>";
 								tbody += "<td>" + result[i]["Gold"] + "</td>";
 								tbody += "<td>" + result[i]["RMB"] + "</td>";
+								tbody += "<td>" + result[i]["firstCreateSid"] + "</td>";
+								tbody += "<td>" + result[i]["firstCreateDate"] + "</td>";
 								tbody += "<td>" + result[i]["lastPayTime"] + "</td>";
 								tbody += "<td>" + result[i]["CreateTime"] + "</td>";
 								tbody += "<td style='"+ result[i]["class"] +"'>" + result[i]["LoginTime"] + "</td>";

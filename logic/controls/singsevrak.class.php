@@ -43,9 +43,32 @@ class singsevrak{
 		$sever = 's'.$ip;
 		$obj = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
 		
-		$playerList = $obj->fquery("select GUID,RoleName,AccountId,`Level`,Gold,CreateTime,LoginTime,LogoutTime from player_table");
+// 		$playerList = $obj->fquery("select GUID,RoleName,AccountId,`Level`,Gold,CreateTime,LoginTime,LogoutTime from player_table");
+		$sql = "SELECT a.id,a.account,b.GUID,b.AccountId,b.`Level`,b.RoleName,b.Gold,b.CreateTime,";
+		$sql.= "b.LoginTime,b.LogoutTime,b.RMB,b.ServerId ";
+		$sql.= " from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId";
+		$playerList = $obj->fquery($sql);
 		foreach ($playerList as $v){
 			$userList[$v['GUID']] = $v;
+		}
+
+
+		//服务器名称
+		$dbList = D('game_base')->fquery("select g_id,g_name from gamedb where g_flag=1");
+		foreach ($dbList as $k=>$v){
+			$serverList[$v['g_id']] = $v['g_name'];
+		}
+		
+		global $account_list;
+		$AccountListObj = F($account_list['db'], $account_list['ip'], $account_list['user'], $account_list['password'], $account_list['port']);
+		
+		$where = "find_in_set($ip,sids)";
+		$rollsuitPlayer = $AccountListObj->table("account_list")->where($where)->select();
+		foreach ($rollsuitPlayer as $k=>$v){
+			$rollsuitAccountServerNme[$v['account']] = array(
+					'name' => $serverList [$v ['first_sid']],
+					'date' => date ( 'Y-m-d H:i:s', $v ['first_create_time'] ) 
+			);
 		}
 		
 		$ChongZhi = D("chongzhi");
@@ -55,12 +78,25 @@ class singsevrak{
 			if (isset($userList[$v['c_pid']])){
 				$list[$k]['sortValue'] = $k+1;
 				$list[$k]['RoleName'] = $userList[$v['c_pid']]['RoleName'];
-				$list[$k]['AccountId'] = $userList[$v['c_pid']]['AccountId'];
+				$list[$k]['account'] = $userList[$v['c_pid']]['account'];
 				$list[$k]['Level'] = $userList[$v['c_pid']]['Level'];
 				$list[$k]['Gold'] = $userList[$v['c_pid']]['Gold'];
 				$list[$k]['CreateTime'] = date('Y-m-d H:i:s',$userList[$v['c_pid']]['CreateTime']);
 				$list[$k]['LoginTime'] = date('Y-m-d H:i:s',$userList[$v['c_pid']]['LogoutTime']);
+				
+				$list[$k]['firstCreateSid'] = $rollsuitAccountServerNme[$userList[$v['c_pid']]['account']]['name'];
+				$list[$k]['firstCreateDate'] = $rollsuitAccountServerNme[$userList[$v['c_pid']]['account']]['date'];
+								
+				$loginTime = time()-strtotime($list[$k]['LoginTime']);
+				if ($loginTime>7*24*60*60){
+					$list[$k]['class'] = "background:red;";
+				}elseif ($loginTime>3*24*60*60){
+					$list[$k]['class'] = "background:#800080;";
+				}else {
+					$list[$k]['class'] = "background:#eef2fb;";
+				}
 			}
+			
 		}
 		
 		$num = count($list);
@@ -87,14 +123,6 @@ class singsevrak{
 		foreach ($list as $k=>$v){
 			$timeTem = $ChongZhi->fquery("select c_time from chongzhi where c_pid=".$v['c_pid']." and c_state=2 order by c_id desc");
 			$list[$k]['lastPayTime'] = $timeTem[0]['c_time'];
-			$loginTime = time()-strtotime($v['LoginTime']);
-			if ($loginTime>7*24*60*60){
-				$list[$k]['class'] = "background:red;";
-			}elseif ($loginTime>3*24*60*60){
-				$list[$k]['class'] = "background:#800080;";
-			}else {
-				$list[$k]['class'] = "background:#eef2fb;";
-			}
 		}
 		
 		$page = new autoAjaxPage($pageSize, $curPage, $num, "formAjax", "go","page");
