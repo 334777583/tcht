@@ -67,9 +67,9 @@
 							<th id='level'>等级</th>
 							<th id='gold'>剩余元宝</th>
 							<th id='money'>充值金额</th>
+							<th>最后充值时间</th>
 							<th>首创游戏服</th>
 							<th>首创时间</th>
-							<th>最后充值时间</th>
 							<th>注册时间</th>
 							<th>最后登录</th>
 						</tr>
@@ -213,9 +213,9 @@
 								tbody += "<td>" + result[i]["Level"] + "</td>";
 								tbody += "<td>" + result[i]["Gold"] + "</td>";
 								tbody += "<td>" + result[i]["RMB"] + "</td>";
+								tbody += "<td>" + result[i]["lastPayTime"] + "</td>";
 								tbody += "<td>" + result[i]["firstCreateSid"] + "</td>";
 								tbody += "<td>" + result[i]["firstCreateDate"] + "</td>";
-								tbody += "<td>" + result[i]["lastPayTime"] + "</td>";
 								tbody += "<td>" + result[i]["CreateTime"] + "</td>";
 								tbody += "<td style='"+ result[i]["class"] +"'>" + result[i]["LoginTime"] + "</td>";
 								tbody += "</tr>";

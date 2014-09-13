@@ -80,8 +80,12 @@ class equipmentoperation{
 			->select();
 			
 // 			echo json_encode($equipment);exit;
-			$goodsPath = ITEM."item.json";//物品配置jsoin文件路径
-			$goods = json_decode(file_get_contents($goodsPath),true);
+// 			$goodsPath = ITEM."item.json";//物品配置jsoin文件路径
+// 			$goods = json_decode(file_get_contents($goodsPath),true);
+			$toolsDetail = $obj->table('tools_detail')->select();
+			foreach ($toolsDetail as $k=>$v){
+				$goods[$v['t_code']]['name'] = $v['t_name'];
+			}
 			
 			$list = array();
 			foreach ($equipment as $k=>$v){
@@ -167,7 +171,7 @@ class equipmentoperation{
 				if ($this->sub_type==1004){
 					$list[$k]['before'] = $goods[$v['equip_id']]['name'];
 					$list[$k]['after'] = $goods[$v['equip_newid']]['name'];
-					$list[$k]['remark'] = "消耗".$v['prop_num'].'个'.$goods[$v['prop_id']]['name'];
+					$list[$k]['remark'] = "消耗".$v['prop_num'].'个'.$goods[$v['prop_id']]['name'].$v['prop_num2'].'个'.$goods[$v['prop_id2']]['name'];
 				}
 			}
 			
@@ -203,13 +207,17 @@ class equipmentoperation{
 			$db = $obj -> table('gamedb') -> where("g_flag = 1 and g_id=$this->ip") -> find();
 			$path = LPATH . $db['g_ip'] . '/' . date('Y-m-d') . '/';	//日志文件所在目录路径
 			$filePath = $path.'log-type-19.log';
-			//$filePath = LPATH.'192.168.0.64/2014-07-29/log-type-19.log';
+// 			$filePath = LPATH.'192.168.0.64/2014-07-29/log-type-19.log';
 			$data = $this->getFileDate($filePath, $user[0]['GUID'],$this->sub_type);
 			if (empty($data)){
 				echo 1;exit;
 			}
-			$goodsPath = ITEM."item.json";//物品配置jsoin文件路径
-			$goods = json_decode(file_get_contents($goodsPath),true);
+// 			$goodsPath = ITEM."item.json";//物品配置jsoin文件路径
+// 			$goods = json_decode(file_get_contents($goodsPath),true);
+			$toolsDetail = $obj->table('tools_detail')->select();
+			foreach ($toolsDetail as $k=>$v){
+				$goods[$v['t_code']]['name'] = $v['t_name'];
+			}
 			
 			$list = array();
 			foreach ($data as $k=>$v){
@@ -296,7 +304,7 @@ class equipmentoperation{
 				if ($this->sub_type==1004){
 					$list[$k]['before'] = $goods[$v['equip_id']]['name'];
 					$list[$k]['after'] = $goods[$v['equip_newId']]['name'];
-					$list[$k]['remark'] = "消耗".$v['prop_num'].'个'.$goods[$v['prop_id']]['name'];
+					$list[$k]['remark'] = "消耗".$v['prop_num'].'个'.$goods[$v['prop_id']]['name'].$v['prop_num2'].'个'.$goods[$v['prop_id2']]['name'];
 				}
 			}
 			

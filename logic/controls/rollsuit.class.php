@@ -90,7 +90,7 @@ class rollsuit{
 		$Server = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
 		
 		//新服所有玩家信息
-		$sql = "SELECT a.id,a.account,b.GUID,b.RoleName,b.CreateTime,b.LoginTime,b.RMB,b.ServerId ";
+		$sql = "SELECT a.id,a.account,b.GUID,b.RoleName,b.CreateTime,b.LoginTime,b.RMB,b.ServerId,b.level ";
 		$sql.= " from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId";
 		$newServerPlayer = $Server->fquery($sql);
 		

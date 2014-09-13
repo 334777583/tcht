@@ -1173,6 +1173,48 @@ class game{
 		) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
 		mysql_query($sql,$con);
 		
+		$sql = "CREATE TABLE `equipment_operation` (
+		  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		  `player_id` int(11) NOT NULL COMMENT '玩家id',
+		  `player_name` varchar(40) NOT NULL COMMENT '玩家角色名',
+		  `sub_type` int(11) NOT NULL COMMENT '子类型',
+		  `equip_id` int(11) NOT NULL COMMENT '装备id',
+		  `pos` int(11) NOT NULL COMMENT '装备位置',
+		  `pos_type` int(11) NOT NULL COMMENT '1身上,2背包',
+		  `time` int(11) NOT NULL COMMENT '操作时间',
+		  `date` datetime NOT NULL COMMENT '插入时间',
+		  `cost_coin` int(11) NOT NULL COMMENT '消耗铜钱',
+		  `old_level` int(11) NOT NULL COMMENT '前强化等级',
+		  `now_level` int(11) NOT NULL COMMENT '后强化等级',
+		  `prop_id` int(11) NOT NULL COMMENT '保护符(物品id)/洗练石id/升级材料物品id',
+		  `prop_id2` int(11) NOT NULL COMMENT '升级材料物品2id',
+		  `count` int(11) NOT NULL COMMENT '当前装备强化总次数',
+		  `pre_attr` text NOT NULL COMMENT '洗炼前属性',
+		  `after_attr` text NOT NULL COMMENT '洗炼后属性',
+		  `lock_attr` text NOT NULL COMMENT '保护锁(锁定的属性)',
+		  `record_id` int(11) NOT NULL COMMENT '洗炼记录id',
+		  `record_result` int(11) NOT NULL COMMENT '洗炼结果1为替换0为不替换',
+		  `record_time` int(11) NOT NULL COMMENT '洗炼操作替换时间',
+		  `gainList` text NOT NULL COMMENT '分解获得物品',
+		  `prop_num` int(11) NOT NULL COMMENT '升级材料物品数量',
+		  `prop_num2` int(11) NOT NULL COMMENT '升级材料物品2数量',
+		  `equip_newId` int(11) NOT NULL COMMENT '升级后装备id',
+		  PRIMARY KEY (`id`)
+		) ENGINE=InnoDB AUTO_INCREMENT=981 DEFAULT CHARSET=utf8;";
+		
+		mysql_query($sql,$con);
+		
+		$sql ="CREATE TABLE `killboss` (
+		  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		  `playid` int(11) NOT NULL COMMENT '玩家id',
+		  `playername` varchar(40) NOT NULL COMMENT '玩家角色名',
+		  `bossid` int(11) NOT NULL COMMENT 'bossID',
+		  `bossname` varchar(40) NOT NULL COMMENT 'boss名称',
+		  `date` datetime NOT NULL COMMENT '操作时间',
+		  PRIMARY KEY (`id`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='击杀boss表';";
+		mysql_query($sql,$con);
+		
 		
 		return true;
 	
