@@ -67,7 +67,9 @@ class userrole{
 		$sever = 's'.$ip;
 		$obj = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
 		//注册数type8
-		$reg_count = $obj->fquery("select count(id) as count from game_user");
+		global $account_list;
+		$AccountListObj = F($account_list['db'], $account_list['ip'], $account_list['user'], $account_list['password'], $account_list['port']);
+		$reg_count = $AccountListObj->fquery("select count(a_id) as count from account_list where find_in_set($ip,sids)");
 		//在线3
 		$user = $obj->fquery("SELECT GUID,AccountId,LoginTime,bOnline,ServerId from player_table where ServerId = {$ip}");
 		$online = 0;
