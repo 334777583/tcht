@@ -52,8 +52,9 @@
 					<{/foreach}>
 					<option value="0" >全部</option>
 					</select>
+					<!--  
 					<input type="text"  id="timer" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="input1" onblur="this.className='input-text'" onfocus="this.className='input-text-bor'">
-					&nbsp;<input type="button" value="阶段查询" id="querystage"/>
+					&nbsp;<input type="button" value="阶段查询" id="querystage"/>-->
 					&nbsp;<input type="button" value="即时查询" id="queryjs"/>
 					&nbsp;<input type="button" value="任务集市创角统计" id="taskquery"/>
 				</div>
@@ -71,6 +72,7 @@
 							<th>登陆总数</th>
 							<th>付费金额</th>
 							<th>付费人数</th>
+							<th>当天付费金额</th>
 							<th>当天付费人数</th>
 							<th>付费次数</th>
 							<th>ARPU</th>
@@ -169,6 +171,7 @@
 				str += '<td>'+data[0]['login']+'</td>';
 				str += '<td>'+data[0]['paymoney']+'</td>';
 				str += '<td>'+data[0]['paynum']+'</td>';
+				str += '<td>'+data[0]['currentpaymoney']+'</td>';
 				str += '<td>'+data[0]['currentpaynum']+'</td>';
 				str += '<td>'+data[0]['paycount']+'</td>';
 				if(parseInt(data[0].paynum)==0){
@@ -196,6 +199,7 @@
 			str += '<td>'+data[0]['login']+'</td>';
 			str += '<td>'+data[0]['paymoney']+'</td>';
 			str += '<td>'+data[0]['paynum']+'</td>';
+			str += '<td>'+data[0]['currentpaymoney']+'</td>';
 			str += '<td>'+data[0]['currentpaynum']+'</td>';
 			str += '<td>'+data[0]['paycount']+'</td>';
 			if(parseInt(data[0].paynum)==0){

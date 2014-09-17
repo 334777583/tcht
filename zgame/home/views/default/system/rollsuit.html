@@ -176,7 +176,7 @@
                     },
                     beforeSend: function(){
                         $("#dtatr_body").html("<tr><td colspan='10'><img src='<{$res}>/images/loading.gif'/></td></tr>");
-						$("#dtatr_body1").html("<tr><td colspan='10'><img src='<{$res}>/images/loading.gif'/></td></tr>");
+						$("#dtatr_body1").html("<tr><td colspan='11'><img src='<{$res}>/images/loading.gif'/></td></tr>");
                     },
                     success: function(data){
                         //$("#example_length").show();
@@ -221,14 +221,14 @@
                             $("#example_length").hide();
                             $("#pagehtml").html("");
                             $("#dtatr_body").html("<tr><td colspan='10'>没有数据！</td></tr>");
-							$("#dtatr_body1").html("<tr><td colspan='10'>没有数据！</td></tr>");
+							$("#dtatr_body1").html("<tr><td colspan='11'>没有数据！</td></tr>");
                         }
                     },
                     error: function(){
                         $("#example_length").hide();
                         $("#pagehtml").html("");
                         $("#dtatr_body").html("<tr><td colspan='10'>没有数据！</td></tr>");
-						$("#dtatr_body1").html("<tr><td colspan='10'>没有数据！</td></tr>");
+						$("#dtatr_body1").html("<tr><td colspan='11'>没有数据！</td></tr>");
                     }
                 })
 		}

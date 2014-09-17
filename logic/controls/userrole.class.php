@@ -57,6 +57,7 @@ class userrole{
 		$result[0]['paynum'] = 0;//充值人数
 		$result[0]['paycount'] = 0;//充值次数
 		$result[0]['paymoney'] = 0;//充值金额
+		$result[0]['currentpaymoney'] = 0;//当天充值金额
 		$result[0]['jiaose'] = 0;//创角人数（账号去重）
 		$result[0]['jiaoseall'] = 0;//创角人数(总)
 		$result[0]['regcount'] = 0;
@@ -124,6 +125,7 @@ class userrole{
 				$openidTem[] = $v['c_openid'];
 			}
 			if ($v['date']==date("Y-m-d")){
+				$result[0]['currentpaymoney'] += $v['c_price']*$v['c_num'];//当天充值金额
 				$currentPlayer[] = $v['c_openid']; 
 			}
 		}
@@ -158,6 +160,7 @@ class userrole{
 		$result[0]['paynum'] = 0;//充值人数
 		$result[0]['paycount'] = 0;//充值次数
 		$result[0]['paymoney'] = 0;//充值金额
+		$result[0]['currentpaymoney'] = 0;//当天充值金额
 		$result[0]['jiaose'] = 0;//创角人数（账号去重）
 		$result[0]['jiaoseall'] = 0;//创角人数(总)
 		$result[0]['regcount'] = 0;
@@ -190,7 +193,7 @@ class userrole{
 			}
 			fclose($fp);										//关闭文件指针
 		}
-		//登录数
+		//登陆总数
 		$result[0]['login'] = D('game'.$ip)->table('detail_login')->total();
 		$loginLogFilePath = $path.'/log-type-2.log';
 		if (file_exists($loginLogFilePath)) {
@@ -222,7 +225,7 @@ class userrole{
 		$result[0]['jiaoseall'] = $jiaose[0]['count'];//创角人数(总)
 		
 		//充值相关
-		$pay = D("chongzhi")->fquery("SELECT c_price,c_num,c_openid,c_sid,left(c_time,10) from chongzhi where c_sid={$ip} and c_state=2 and c_ts<{$time}");
+		$pay = D("chongzhi")->fquery("SELECT c_price,c_num,c_openid,c_sid,left(c_time,10) as date from chongzhi where c_sid={$ip} and c_state=2 and c_ts<{$time}");
 		$openidTem = array();
 		foreach ($pay as $k=>$v){
 			$result[0]['paycount']++;
@@ -232,6 +235,7 @@ class userrole{
 				$openidTem[] = $v['c_openid'];
 			}
 			if ($v['date']==date("Y-m-d")){
+				$result[0]['currentpaymoney'] += $v['c_price']*$v['c_num'];//当天充值金额
 				$currentPlayer[] = $v['c_openid']; 
 			}
 		}
