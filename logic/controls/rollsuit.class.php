@@ -91,7 +91,7 @@ class rollsuit{
 		
 		//新服所有玩家信息
 		$sql = "SELECT a.id,a.account,b.GUID,b.RoleName,b.CreateTime,b.LoginTime,b.RMB,b.ServerId,b.level ";
-		$sql.= " from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId";
+		$sql.= " from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId where b.ServerId=$ip";
 		$newServerPlayer = $Server->fquery($sql);
 		
 		$newAccount = array();//新服所有账号
