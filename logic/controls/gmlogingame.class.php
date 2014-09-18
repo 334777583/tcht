@@ -45,13 +45,13 @@ class gmlogingame{
 		
 		$start = intval(($this->curPage-1)*$this->pageSize);
 		if (empty($this->roleName)){
-			$count = $Server->fquery("SELECT GUID from player_table");
+			$count = $Server->fquery("SELECT GUID from player_table where ServerId=$this->ip");
 			$total = count($count);
-			$user = $Server->fquery("SELECT a.GUID,a.RoleName,b.account,a.LoginTime,a.LogoutTime,a.bOnline from player_table as a LEFT JOIN game_user as b on a.AccountId=b.id limit $start,$this->pageSize");
+			$user = $Server->fquery("SELECT a.GUID,a.RoleName,b.account,a.LoginTime,a.LogoutTime,a.bOnline from player_table as a LEFT JOIN game_user as b on a.AccountId=b.id where a.ServerId=$this->ip order by a.LoginTime desc limit $start,$this->pageSize");
 		}else {
-			$count = $Server->fquery("SELECT GUID from player_table where RoleName like '{$this->roleName}'");
+			$count = $Server->fquery("SELECT GUID from player_table where RoleName like '%{$this->roleName}%' and ServerId=$this->ip");
 			$total = count($count);
-			$user = $Server->fquery("SELECT a.GUID,a.RoleName,b.account,a.LoginTime,a.LogoutTime,a.bOnline from player_table as a LEFT JOIN game_user as b on a.AccountId=b.id where RoleName like '%{$this->roleName}%' limit $start,$this->pageSize");
+			$user = $Server->fquery("SELECT a.GUID,a.RoleName,b.account,a.LoginTime,a.LogoutTime,a.bOnline from player_table as a LEFT JOIN game_user as b on a.AccountId=b.id where RoleName like '%{$this->roleName}%' and a.ServerId=$this->ip order by a.LoginTime desc limit $start,$this->pageSize");
 		}
 		
 		foreach ($user as $k=>$v){

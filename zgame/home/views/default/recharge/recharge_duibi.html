@@ -105,14 +105,16 @@
 	<div id="dform"  style="display:none">
 		<div class="ajaxform">
 			<table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;">
-				
-				<{foreach from=$ipList item=ip}>
-					<tr>
-						<td>
-						<input type="checkbox" name="db" value='<{$ip.s_id}>'  class="cbox"/><span><{$ip.s_name}></span>
-						</td>
-					</tr>
-				<{/foreach}>
+				<tr>
+					<td>
+					<{foreach from=$ipList item=ip key=k}>
+						<input type="checkbox" name="db" value='<{$ip.s_id}>'  class="cbox" id="s<{$k}>"/>
+		               <label for="s<{$k}>"><{$ip.s_name}></label>
+		               <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+		               <{if  ($k+1)%5 eq 0}><br/><{/if}>
+		           <{/foreach}>
+					</td>
+	           </tr>
 			</table>
 		</div>
 	</div>
@@ -179,6 +181,11 @@
 							height: 500,
 							width: 700,
 							buttons :{
+								"全选" : function(){
+									$('input[name=db]').each(function() {
+										$(this).attr('checked','checked');
+									});
+								},
 								"确认": function(){
 									var db = [];
 									$('input[name=db]:checked').each(function() {
