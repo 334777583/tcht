@@ -93,7 +93,7 @@ class gminfo{
 		$point = F($t_conf[$sever]['db'], $t_conf[$sever]['ip'], $t_conf[$sever]['user'], $t_conf[$sever]['password'], $t_conf[$sever]['port']);
 		$plays = array();					//玩家信息
 		if($this -> text == '') {
-			$list = $point -> table('player_table') -> field('sex,carrer,guid,accountid,rolename,level,createtime,logintime') -> limit(intval(($this->curPage-1)*$this->pageSize),intval($this->pageSize)) -> where('serverid ='.$sid) -> select();
+			$list = $point -> table('player_table') -> field('sex,carrer,guid,accountid,rolename,level,createtime,logintime')->order('guid asc') -> limit(intval(($this->curPage-1)*$this->pageSize),intval($this->pageSize)) -> where('serverid ='.$sid) -> select();
 			$total = $point -> table('player_table') -> where('serverid ='.$sid) -> total();
 		
 		} else {
@@ -112,7 +112,7 @@ class gminfo{
 			
 			$where_field .= ' and serverid ='.$sid;
 		
-			$list = $point -> table('player_table') -> field('sex,carrer,guid,accountid,rolename,level,createtime,logintime') -> where($where_field) -> limit(intval(($this->curPage-1)*$this->pageSize),intval($this->pageSize)) -> select();
+			$list = $point -> table('player_table') -> field('sex,carrer,guid,accountid,rolename,level,createtime,logintime') -> where($where_field) ->order('guid asc') -> limit(intval(($this->curPage-1)*$this->pageSize),intval($this->pageSize)) -> select();
 			$total = $point -> table('player_table') -> where($where_field) -> total();
 
 		}
