@@ -108,7 +108,7 @@ class userlevel{
 					}
 					//$obj = D(GNAME.$ip);
 					
-					$CountSql = 'select '.$Sql_Str.' from player_table';
+					$CountSql = 'select '.$Sql_Str.' from player_table where ServerId='.$ip;
 					$result = $obj -> fquery($CountSql);//统计等级段数据
 					//echo json_encode($CountSql);exit;
 					$i = 0;
@@ -120,7 +120,7 @@ class userlevel{
 						}
 					}
 					
-					$CountL_Sql = 'select Level , count(Level) count from player_table group by Level';
+					$CountL_Sql = 'select Level , count(Level) count from player_table where ServerId='.$ip.' group by Level';
 					$level = $obj -> fquery($CountL_Sql);//统计等级数据
 				}
 				if(!empty($result)){
