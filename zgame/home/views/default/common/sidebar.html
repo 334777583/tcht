@@ -276,6 +276,9 @@
 				<{if  in_array("00501800",$user.code)}>
 				<li id="gold"><a href="<{$app}>/gmlogingame/show" onclick="return false;">游戏登入</a></li>
 				<{/if}>
+				<{if  in_array("00502100",$user.code)}>
+				<li id="gold"><a href="<{$app}>/instructor/show" onclick="return false;">指导员设置</a></li>
+				<{/if}>
 				<{if  in_array("00501900",$user.code)}>
 				<li id="gold"><a href="<{$app}>/gmchat/show" onclick="return false;">聊天内容监控</a></li>
 				<{/if}>
