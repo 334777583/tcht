@@ -61,6 +61,18 @@
 			
 			<div id="tabs-1" class="tabitem">	
 				<div>
+					<table  class="mytable" cellspacing="0" align="center">
+						<thead>
+							<tr>
+								<th>登录ip总数</th>
+								<th>登录账号总数</th>
+								<th>登录角色总数</th>
+								<th>登录总次数</th>
+							</tr>
+						</thead>
+						<tbody id="dtatr_body_all">
+						</tbody>
+					</table>
 					<table  class="mytable" cellspacing="0" align="center" id="dtable">
 						<thead>
 							<tr>
@@ -216,19 +228,30 @@
 						startdate: $('#startdate').val()
 					},
 					beforeSend: function(){
+						$("#dtatr_body_all").html("");
 						$("#dtatr_body").html("<tr><td colspan='6'><img src='<{$res}>/images/loading.gif'/></td></tr>");
 					},
 					success: function(data){
-						if (typeof(data) != 'undefined' && data.length > 0) {
+						var summary = data.summary;
+						var list = data.list;
+						if (typeof(list) != 'undefined' && list.length > 0) {
+							var html = "";
+							html += "<tr>";
+							html += "<td>"+ summary['ip_num'] +"</td>";
+							html += "<td>"+ summary['account_num'] +"</td>";
+							html += "<td>"+ summary['playerid_num'] +"</td>";
+							html += "<td>"+ summary['login_num'] +"</td>";
+							html += "</tr>";
+							$("#dtatr_body_all").html(html);
+							
 							var tbody = "";
-							var url = '';
-							for (var i in data) {
+							for (var i in list) {
 								tbody += "<tr>";
-								tbody += "<td>" + data[i]["ip"] + "</td>";
-								tbody += "<td>" + data[i]["accountnum"] + "</td>";
-								tbody += "<td>" + data[i]["playerid"] + "</td>";
-								tbody += "<td>" + data[i]["count"] + "</td>";
-								tbody += "<td>" + data[i]["account"] + "</td>";
+								tbody += "<td>" + list[i]["ip"] + "</td>";
+								tbody += "<td>" + list[i]["accountnum"] + "</td>";
+								tbody += "<td>" + list[i]["playerid"] + "</td>";
+								tbody += "<td>" + list[i]["count"] + "</td>";
+								tbody += "<td>" + list[i]["account"] + "</td>";
 								tbody += "<td>&nbsp;</td>";
 								tbody += "</tr>";
 							}

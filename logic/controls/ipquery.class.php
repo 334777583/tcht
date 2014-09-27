@@ -33,9 +33,11 @@ class ipquery{
 	public function getIpData(){
 		$ip = get_var_value('ip');
 		$startDate = get_var_value('startdate')==null?date('Y-m-d'):get_var_value('startdate');
+		
 		$Gamebase = D('game_base');
 		$g_folder = $Gamebase->field('g_ip')->table('gamedb')->where('g_id = '.$ip)->find();
 		$path = LPATH . $g_folder['g_ip'] . '/' . $startDate . '/';	//日志文件所在目录路径
+// 		$path = LPATH.'192.168.0.64/2014-07-29/';
 		$loginLogFilePath = $path.'log-type-2.log';
 		if (!file_exists($loginLogFilePath)) {
 			echo '1';exit;
@@ -62,6 +64,10 @@ class ipquery{
 			}
 		}
 		fclose($fp);		//关闭文件指针
+		
+		//汇总
+		$summary = array('ip_num'=>0,'account_num'=>0,'playerid_num'=>0,'login_num'=>0);
+		
 		$i = 0;
 		$list = array();
 		foreach ($ipArr as $k=>$v){
@@ -74,6 +80,11 @@ class ipquery{
 			//$list[$i]['account'] = $account;
 			$list[$i]['count'] = $v['count'];
 			$i++;
+			
+			$summary['ip_num'] ++;
+			$summary['account_num'] += count($account);
+			$summary['playerid_num'] += count($playerid);
+			$summary['login_num'] += $v['count'];
 		}
 		$num = count($list);
 		for($i = 1; $i < $num; $i ++) {
@@ -85,7 +96,7 @@ class ipquery{
 				}
 			}
 		}
-		echo json_encode($list);
+		echo json_encode(array('list'=>$list,'summary'=>$summary));
 	}
 	
 	public function getPlayerIp(){
