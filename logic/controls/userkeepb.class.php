@@ -74,7 +74,7 @@ class userkeepb{
 		$point = D('game'.$this->ip);
 		$listdate = $point -> table("online_sec") -> field('left(o_date,10) as o_date') -> order('o_date asc')-> limit(0,1) ->find();
 		echo json_encode(array('startDate'=>$listdate['o_date'],
-							   'endDate'=>date('Y-m-d',strtotime($listdate['o_date'])+7*24*3600)
+							   'endDate'=>date('Y-m-d')
 							   ));
 	}
 	
