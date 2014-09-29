@@ -47,8 +47,9 @@
 					</select>
 					角色名
 					<input type="text" name="rolename" id="rolename"/>
-					<input type="button" value="查询" id="history" style="margin-left:20px"/>
-					<input type="button" value="增加指导员" id="add" style="margin-left:20px"/>
+					<input type="button" value="查询" id="history"/>
+                    <input type="button" value="选择服务器" id="choseserver"/>
+					<input type="button" value="增加指导员" id="add"/>
 				</div>
 			</div>
 			
@@ -140,6 +141,25 @@
                         }
                     })
                 }
+            });
+
+            $('#choseserver').toggle(function(){
+                $("#dform").dialog({
+                    height: 500,
+                    width: 700,
+                    buttons: {
+                        "确认": function(){
+                            var item = $(':radio[name="db"]:checked').val();
+                            $("#sip").val(item);
+                            $(this).dialog("close");
+                        },
+                        "关闭": function(){
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            },function(){
+                $("#dform").dialog("close");
             });
             
 			$('#history').click(function(){
