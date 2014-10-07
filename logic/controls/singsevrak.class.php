@@ -46,7 +46,7 @@ class singsevrak{
 // 		$playerList = $obj->fquery("select GUID,RoleName,AccountId,`Level`,Gold,CreateTime,LoginTime,LogoutTime from player_table");
 		$sql = "SELECT a.id,a.account,b.GUID,b.AccountId,b.`Level`,b.RoleName,b.Gold,b.CreateTime,";
 		$sql.= "b.LoginTime,b.LogoutTime,b.RMB,b.ServerId ";
-		$sql.= " from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId";
+		$sql.= " from player_table as b LEFT JOIN game_user as a on a.id=b.AccountId where b.serverid=$ip";
 		$playerList = $obj->fquery($sql);
 		foreach ($playerList as $v){
 			$userList[$v['GUID']] = $v;
