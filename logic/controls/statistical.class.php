@@ -70,10 +70,9 @@ class statistical{
             }
         }
 
+        //新用户数
         global $account_list;
         $AccountListObj = F($account_list['db'], $account_list['ip'], $account_list['user'], $account_list['password'], $account_list['port']);
-
-        //新用户数
         $where = "first_create_time between $startTime and $endTime";
         $newPlayer = $AccountListObj->table("account_list")->where($where)->select();
         if(!empty($newPlayer)){
@@ -92,7 +91,7 @@ class statistical{
             $tem = array();
             $tem['date'] = $k;
             $tem['activeuser'] = count(array_unique($v));
-            $tem['newuser'] = empty($newPlayerDate[$k])?0:count($newPlayerDate[$k]);
+            $tem['newuser'] = empty($newPlayerDate[$k])?0:count(array_unique($newPlayerDate[$k]));
             $tem['pay'] = empty($pay[$k])?0:$pay[$k];
             $tem['arpu'] = round($tem['pay']/$tem['activeuser'],2);
 
