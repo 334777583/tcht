@@ -105,6 +105,7 @@ class statistical{
 //            if($k=='2014-08-03'){
 //                echo json_encode(array($v,$newPlayerDate[$k]));exit;
 //            }
+
             $tem['olduser'] = count(array_unique(array_diff($v,$newPlayerDate[$k])));
 
             $result[] = $tem;
