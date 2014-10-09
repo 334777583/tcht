@@ -26,9 +26,12 @@
 				<{if  in_array("00100600",$user.code)}>
 					<li id="accport"><a href="<{$app}>/rechargeport/show" onclick="return false;">充值接口</a></li>
 				<{/if}>
-				<{if  in_array("00100700",$user.code)}>
-					<li id="accport"><a href="<{$app}>/dailyreport/show" onclick="return false;">每日报表</a></li>
-				<{/if}>
+                <{if  in_array("00100700",$user.code)}>
+                <li id="accport"><a href="<{$app}>/dailyreport/show" onclick="return false;">每日报表</a></li>
+                <{/if}>
+                <{if  in_array("00100800",$user.code)}>
+                <li id="accport"><a href="<{$app}>/statistical/show" onclick="return false;">全服用户活跃统计</a></li>
+                <{/if}>
 			</ul>
 		</div>
 	<{/if}>

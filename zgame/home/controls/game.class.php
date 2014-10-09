@@ -210,7 +210,7 @@ class game{
 		
 		$sql ="CREATE TABLE `detail_login` (
 				`d_id`  int(11) NOT NULL AUTO_INCREMENT ,
-				`d_user`  char(25) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '用户名' ,
+				`d_user`  char(80) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '用户名' ,
 				`d_ip`  char(15) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'IP' ,
 				`d_userid`  int(11) NOT NULL COMMENT '角色ID' ,
 				`d_date`  datetime NOT NULL COMMENT '登陆的时间' ,
@@ -370,7 +370,7 @@ class game{
 
 		$sql ="CREATE TABLE `user` (
 			  `u_id` int(11) NOT NULL AUTO_INCREMENT,
-			  `u_username` char(25) NOT NULL COMMENT '用户名',
+			  `u_username` char(80) NOT NULL COMMENT '用户名',
 			  `u_date` datetime NOT NULL COMMENT '时间',
 			  PRIMARY KEY (`u_id`),
 			  UNIQUE KEY `u_username` (`u_username`) USING HASH,
