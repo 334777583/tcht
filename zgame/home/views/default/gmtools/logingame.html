@@ -62,7 +62,9 @@
 							<tr>
 								<th>玩家id</th>
 								<th>账号</th>
-								<th>角色名</th>
+                                <th>角色名</th>
+                                <th>等级</th>
+                                <th>职业</th>
 								<th>上一次登陆</th>
 								<th>上一次退出</th>
 								<th>当前状态</th>
@@ -151,7 +153,7 @@
 						curPage: page
 					},
 					beforeSend: function(){
-						$("#dtatr_body").html("<tr><td colspan='6'><img src='<{$res}>/images/loading.gif'/></td></tr>");
+						$("#dtatr_body").html("<tr><td colspan='9'><img src='<{$res}>/images/loading.gif'/></td></tr>");
 					},
 					success: function(data){
 					
@@ -165,7 +167,17 @@
 								tbody += "<tr>";
 								tbody += "<td>" + result[i]["GUID"] + "</td>";
 								tbody += "<td>" + result[i]["account"] + "</td>";
-								tbody += "<td>" + result[i]["RoleName"] + "</td>";
+                                tbody += "<td>" + result[i]["RoleName"] + "</td>";
+                                tbody += "<td>" + result[i]["Level"] + "</td>";
+                                if(result[i]["Carrer"]==0){
+                                    tbody += "<td>无职业</td>";
+                                }else if(result[i]["Carrer"]==1){
+                                    tbody += "<td>猛将</td>";
+                                }else if(result[i]["Carrer"]==2){
+                                    tbody += "<td>神弓</td>";
+                                }else if(result[i]["Carrer"]==3){
+                                    tbody += "<td>谋士</td>";
+                                }
 								tbody += "<td>" + result[i]["logintime"] + "</td>";
 								tbody += "<td>" + result[i]["loginouttime"] + "</td>";
 								tbody += "<td>" + result[i]["status"] + "</td>";

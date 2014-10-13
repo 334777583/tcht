@@ -33,6 +33,7 @@ class operation{
 		$this->endDate = get_var_value('endDate');
 		$this->code = get_var_value('code');
 		$this->codeValue = get_var_value('codeValue');
+        $this->goodsname = get_var_value('goodsname');
 		$this->pageSize = get_var_value('pageSize') == NULL ? 10 : get_var_value('pageSize');
 		$this->curPage = get_var_value('curPage') == NULL ? 1 : get_var_value('curPage');
 	}
@@ -51,15 +52,20 @@ class operation{
 			
 			$tableNum = $this->codeValue%15;
 			$obj = D("game".$this->ip);
-			$total =  $obj->table('water_log'.$tableNum)->where("date between '{$this->startDate}' and '{$this->endDate}' and ItemId>100 and playid=$this->codeValue")->total();
-			
-			$sql = "select b.t_name,a.Count,a.date,a.Source,a.ItemId,a.target_playid from water_log$tableNum as a left join tools_detail as b on a.ItemId=b.t_code";
-			$sql.= " where date between '{$this->startDate}' and '{$this->endDate}' and ItemId>100 and playid=$this->codeValue group by id limit ";
-			$sql.= intval(($this->curPage-1)*$this->pageSize).",".$this->pageSize;
+
+            $sql1 = "select count(*) as count from water_log$tableNum as a left join tools_detail as b on a.ItemId=b.t_code where date between '{$this->startDate}' and '{$this->endDate}' and ItemId>100 and playid=$this->codeValue";
+            if(!empty($this->goodsname)){
+                $sql1.= " and b.t_name like '%".$this->goodsname."%' ";
+            }
+			$total =  $obj->fquery($sql1);
+            $total = $total[0]['count'];
+
+			$sql = "select b.t_name,a.Count,a.date,a.Source,a.ItemId,a.target_playid from water_log$tableNum as a left join tools_detail as b on a.ItemId=b.t_code where date between '{$this->startDate}' and '{$this->endDate}' and ItemId>100 and playid=$this->codeValue";
+            if(!empty($this->goodsname)){
+                $sql.= " and b.t_name like '%".$this->goodsname."%' ";
+            }
+            $sql.= " group by id limit ".intval(($this->curPage-1)*$this->pageSize).",".$this->pageSize;
 			$moneylog = $obj->fquery($sql);
-// 			$moneylog = $obj->table('money_log')
-// 			->where("date between '{$this->startDate}' and '{$this->endDate}' and coin_type=$this->cointype and playid=$this->codeValue")
-// 			-> limit(intval(($this->curPage-1)*$this->pageSize),intval($this->pageSize))->select();
 			
 			//来源
 			$source = file_get_contents(ITEM.'source.json');

@@ -29,10 +29,9 @@
 						<tr>
 							<td width="5%"  class="tableleft"><b>说明：</b></td>
 						</tr>
-						<tr>
-							<!--<td width="95%" class="tableleft">1、即时查询为当天数据</td>-->
-							<td width="95%" class="tableleft">**********</td>
-						</tr>
+                        <tr>
+                            <td width="95%" class="tableleft">1、物品名称支持模糊查询，且只支持历史查询</td>
+                        </tr>
 					</tbody>
 				</table>
 			</div>
@@ -57,6 +56,8 @@
 						<option value="3">角色ID</option>
 					</select>
 					<input type="text" name="codeValue" id="codeValue"/>
+                    <span>物品名称:</span>
+                    <input type="text" name="goodsname" id="goodsname"/>
 					<input type="button" value="历史查询" id="history" style="margin-left:20px"/>
 					<input type="button" value="即时查询" id="jishi" style="margin-left:20px"/>
 					<input type="hidden" value="1" id="queryType"/>
@@ -219,6 +220,7 @@
 							cointype:$('#cointype').val(),
 							code : $('#code').val(),
 							codeValue:$('#codeValue').val(),
+                            goodsname : $('#goodsname').val(),
 							pageSize : $("#menu").val(),
 							curPage : page
 						},
@@ -275,6 +277,7 @@
 						data : {
 							ip : $("#sip").val(),
 							cointype:$('#cointype').val(),
+                            goodsname : $('#goodsname').val(),
 							codeValue:$('#codeValue').val()
 						},
 						beforeSend : function() {
