@@ -21,12 +21,12 @@ class DB extends kim
 	protected $group = '';
 	protected $order = '';
 	protected $limit = '';
-	protected $port = 3311;
+	protected $port = 3310;
 	protected $fieldList;
 	protected $field;
 	protected $obj;
 
-	public function __construct($dbname='',$host='',$user='',$pass='', $port=3311)
+	public function __construct($dbname='',$host='',$user='',$pass='', $port=3309)
 	{
 		$this -> dbname = $dbname; 
 		$this -> dbhost = $host;

@@ -91,7 +91,7 @@ class statistical{
             $tem = array();
             $tem['date'] = $k;
             $tem['activeuser'] = count(array_unique($v));
-            $tem['newuser'] = empty($newPlayerDate[$k])?0:count(array_unique($newPlayerDate[$k]));
+            $tem['newuser'] = empty($newPlayerDate[$k])?0:count($newPlayerDate[$k]);
             $tem['pay'] = empty($pay[$k])?0:$pay[$k];
             $tem['arpu'] = round($tem['pay']/$tem['activeuser'],2);
 
@@ -105,8 +105,8 @@ class statistical{
 //            if($k=='2014-08-03'){
 //                echo json_encode(array($v,$newPlayerDate[$k]));exit;
 //            }
-
             $tem['olduser'] = count(array_unique(array_diff($v,$newPlayerDate[$k])));
+            //$tem['olduser'] = $tem['activeuser']-$tem['newuser'];
 
             $result[] = $tem;
         }

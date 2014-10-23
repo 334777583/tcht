@@ -42,8 +42,8 @@ class gmchat{
 		$Gamebase = D('game_base');
 		$g_folder = $Gamebase->field('g_ip')->table('gamedb')->where('g_id = '.$ip)->find();
 		$path = LPATH . $g_folder['g_ip'] . '/' . $date . '/';	//日志文件所在目录路径
- 		$chatFilePath = $path.'/log-type-18.log';
-		//$chatFilePath = LPATH.'192.168.0.64/2014-07-29/log-type-18.log';
+// 		$chatFilePath = $path.'/log-type-18.log';
+		$chatFilePath = LPATH.'192.168.0.64/2014-07-29/log-type-18.log';
 		if (!is_file($chatFilePath)){
 			echo '1';exit;//文件不存在退出
 		}

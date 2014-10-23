@@ -26,6 +26,8 @@ class rechargeport{
 	}
 	
 	public function show(){
+        $ipList = parent::getIpList();
+        $this->assign("ipList",$ipList);
 		$this->display("recharge/recharge_port");
 	}
 }
