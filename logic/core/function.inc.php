@@ -21,9 +21,16 @@ function D($db){
 }
 
 //拓展数据库功能
-function F($db,$h,$u,$p,$port=3311){	
+function F($db,$h,$u,$p,$port=3306){
 	$obj = new DB($db,$h,$u,$p,$port);
 	return $obj;
+}
+
+function DF($config=array()){
+	if (empty($config)){
+		return false;
+	}
+	return new DB($config['db'],$config['ip'],$config['user'],$config['password'],$config['port']);
 }
 
 ?>
