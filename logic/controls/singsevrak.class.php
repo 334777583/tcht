@@ -54,7 +54,7 @@ class singsevrak{
 
 
 		//服务器名称
-		$dbList = D('game_base')->fquery("select g_id,g_name from gamedb where g_flag=1");
+		$dbList = D('game_base')->fquery("select g_id,g_name from gamedb");
 		foreach ($dbList as $k=>$v){
 			$serverList[$v['g_id']] = $v['g_name'];
 		}
@@ -75,11 +75,12 @@ class singsevrak{
 		$list = $ChongZhi ->fquery("SELECT sum(c_price*c_num) as RMB,c_pid,c_time from chongzhi where c_state=2 and c_sid={$ip} GROUP BY c_pid ORDER BY RMB DESC");
 
 		global $task_db;
-		$task = DF($task_db)->table('task_market')->select();
-		$taskOpen = '';
-		foreach ($task as $v){
-			$taskOpen .= $v['openid'].',';
-		}
+		$Task = DF($task_db);
+// 		$task = DF($task_db)->table('task_market')->select();
+// 		$taskOpen = '';
+// 		foreach ($task as $v){
+// 			$taskOpen .= $v['openid'].',';
+// 		}
 				
 		foreach ($list as $k=>$v){
 			if (isset($userList[$v['c_pid']])){
@@ -93,12 +94,18 @@ class singsevrak{
 				
 				$list[$k]['firstCreateSid'] = $rollsuitAccountServerNme[$userList[$v['c_pid']]['account']]['name'];
 				$list[$k]['firstCreateDate'] = $rollsuitAccountServerNme[$userList[$v['c_pid']]['account']]['date'];
-								
-				if (strpos($taskOpen, $userList[$v['c_pid']]['account'])){
+
+				$s = $Task->table('task_market')->where('openid="'.$userList[$v['c_pid']]['account'].'"')->find();
+				if ($s){
 					$list[$k]['channel'] = '任务集市';
 				}else {
 					$list[$k]['channel'] = '';
 				}
+// 				if (strpos($taskOpen, $userList[$v['c_pid']]['account'])){
+// 					$list[$k]['channel'] = '任务集市';
+// 				}else {
+// 					$list[$k]['channel'] = '';
+// 				}
 				
 				$loginTime = time()-strtotime($list[$k]['LoginTime']);
 				if ($loginTime>7*24*60*60){
