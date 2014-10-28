@@ -133,7 +133,8 @@ body {
 									<td colspan="2">总在线时长</td>
 									<td>在线状态</td>
 									<td>账号状态</td>
-									<td colspan="5">&nbsp;</td>
+									<td>渠道</td>
+									<td colspan="4">&nbsp;</td>
 								</tr>
 								<tr id="detailInfo2">
 									<td colspan="3">&nbsp;</td>
@@ -723,7 +724,8 @@ body {
 				dhtml2 += "<td colspan='2'>"+sumsec+"</td>";
 				dhtml2 += "<td id='isOnLine'>"+data.player["isOnline"]+"</td>";
 				dhtml2 += "<td>"+data.player["accountState"]+"</td>";
-				dhtml2 += "<td colspan='5'>&nbsp;</td>";
+				dhtml2 += "<td>"+data.player["channel"]+"</td>";
+				dhtml2 += "<td colspan='4'>&nbsp;</td>";
 				$("#detailInfo2").html(dhtml2);
 				 
 				//玩家装备信息

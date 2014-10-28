@@ -223,7 +223,13 @@ class gminfo{
 				}else{
 					$play['accountState'] = '禁止登录';
 				}
-
+				global $task_db;
+				$task = DF($task_db)->table('task_market')->where("openid='".$account['account']."'")->find();
+				if ($task){
+					$play['channel'] = '任务集市';
+				}else {
+					$play['channel'] = '';
+				}
 			}
 		}
 		

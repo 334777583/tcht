@@ -427,7 +427,7 @@ body {
 					
 					var today =  curentDate();
 					$("#qdate").val(today);
-					user_zaxx.getRealData(today,1);
+					user_zaxx._fun_ge(today,1);
 					
 					if($("#chartdiv2").children().length > 0){
 						$("#chartdiv2").children().first().css("width","1669px");
@@ -975,7 +975,7 @@ body {
 				if(self.checktime()){
 					var today =  curentDate();
 					$("#qdate").val(today);
-					self.getRealData(today,1);
+					self._fun_ge(today,1);
 					$("#realinfo").show();
 				}
 			});

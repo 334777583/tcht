@@ -73,7 +73,14 @@ class singsevrak{
 		
 		$ChongZhi = D("chongzhi");
 		$list = $ChongZhi ->fquery("SELECT sum(c_price*c_num) as RMB,c_pid,c_time from chongzhi where c_state=2 and c_sid={$ip} GROUP BY c_pid ORDER BY RMB DESC");
-		 
+
+		global $task_db;
+		$task = DF($task_db)->table('task_market')->select();
+		$taskOpen = '';
+		foreach ($task as $v){
+			$taskOpen .= $v['openid'].',';
+		}
+				
 		foreach ($list as $k=>$v){
 			if (isset($userList[$v['c_pid']])){
 				$list[$k]['sortValue'] = $k+1;
@@ -81,12 +88,18 @@ class singsevrak{
 				$list[$k]['account'] = $userList[$v['c_pid']]['account'];
 				$list[$k]['Level'] = $userList[$v['c_pid']]['Level'];
 				$list[$k]['Gold'] = $userList[$v['c_pid']]['Gold'];
-				$list[$k]['CreateTime'] = date('Y-m-d H:i:s',$userList[$v['c_pid']]['CreateTime']);
-				$list[$k]['LoginTime'] = date('Y-m-d H:i:s',$userList[$v['c_pid']]['LogoutTime']);
+				$list[$k]['CreateTime'] = empty($userList[$v['c_pid']]['CreateTime'])?'':date('Y-m-d H:i:s',$userList[$v['c_pid']]['CreateTime']);
+				$list[$k]['LoginTime'] = empty($userList[$v['c_pid']]['LogoutTime'])?'':date('Y-m-d H:i:s',$userList[$v['c_pid']]['LogoutTime']);
 				
 				$list[$k]['firstCreateSid'] = $rollsuitAccountServerNme[$userList[$v['c_pid']]['account']]['name'];
 				$list[$k]['firstCreateDate'] = $rollsuitAccountServerNme[$userList[$v['c_pid']]['account']]['date'];
 								
+				if (strpos($taskOpen, $userList[$v['c_pid']]['account'])){
+					$list[$k]['channel'] = '任务集市';
+				}else {
+					$list[$k]['channel'] = '';
+				}
+				
 				$loginTime = time()-strtotime($list[$k]['LoginTime']);
 				if ($loginTime>7*24*60*60){
 					$list[$k]['class'] = "background:red;";

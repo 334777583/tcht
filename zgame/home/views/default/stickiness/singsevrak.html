@@ -72,6 +72,7 @@
 							<th>首创时间</th>
 							<th>注册时间</th>
 							<th>最后登录</th>
+							<th>渠道</th>
 						</tr>
 					</thead>
 					<tbody id="dtatr_body">
@@ -218,6 +219,7 @@
 								tbody += "<td>" + result[i]["firstCreateDate"] + "</td>";
 								tbody += "<td>" + result[i]["CreateTime"] + "</td>";
 								tbody += "<td style='"+ result[i]["class"] +"'>" + result[i]["LoginTime"] + "</td>";
+								tbody += "<td style='"+ result[i]["class"] +"'>" + result[i]["channel"] + "</td>";
 								tbody += "</tr>";
 								j++;
 							}

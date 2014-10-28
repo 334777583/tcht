@@ -280,6 +280,9 @@ class userlogin{
 		$file = LPATH.$s_ip['s_ip'].'/'.$enddate.'/log-type-3.log';
 		// $file = file_get_contents($file);
 		// $file = explode("\n", $file);
+		if (!is_file($file)){
+			echo '1';exit;
+		}
 		$fp = fopen($file, "r");	
 		$log_data = array();								//保存日志分析信息
 		while(!feof($fp)) {					
