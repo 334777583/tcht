@@ -114,6 +114,14 @@
 					<li id="sin"><a href="<{$app}>/killboss/show"  onclick="return false;">玩家击杀BOSS查询</a></li>
 				<{/if}>
 				
+				<{if  in_array("00301100",$user.code)}>
+					<li id="sin"><a href="<{$app}>/playerEmail/show"  onclick="return false;">玩家邮件操作</a></li>
+				<{/if}>
+				
+				<{if  in_array("00301200",$user.code)}>
+					<li id="sin"><a href="<{$app}>/playerTrad/show"  onclick="return false;">玩家交易查询</a></li>
+				<{/if}>
+				
 			</ul>
 		</div>
 	<{/if}>
